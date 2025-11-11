@@ -48,17 +48,25 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     @Transactional
     public ReservaResponse create(ReservaRequest reservaRequest) {
-        Huesped huesped = huespedRepository.findById(reservaRequest.getHuespedId())
-                .orElseThrow(() -> new NotFoundException("Huésped no encontrado con ID: " + reservaRequest.getHuespedId()));
-        Habitacion habitacion = habitacionRepository.findById(reservaRequest.getHabitacionId())
-                .orElseThrow(() -> new NotFoundException("Habitación no encontrada con ID: " + reservaRequest.getHabitacionId()));
+        if (reservaRequest.getFechaSalida().isBefore(reservaRequest.getFechaEntrada())) {
+            throw new IllegalArgumentException("La fecha de salida no puede ser antes que la fecha de entrada");
+        }
+        boolean ocupada = reservaRepository
+                .existsByHabitacionIdAndFechaEntradaLessThanEqualAndFechaSalidaGreaterThanEqual(
+                        reservaRequest.getHabitacionId(),
+                        reservaRequest.getFechaSalida(),
+                        reservaRequest.getFechaEntrada()
+                );
+
+        if (ocupada) {
+            throw new IllegalArgumentException("La habitación está ocupada en esas fechas");
+        }
 
         Reserva reserva = new Reserva();
-        reserva.setHuesped(huesped);
-        reserva.setHabitacion(habitacion);
+        setRelations(reserva, reservaRequest);
         mapRequestToEntity(reservaRequest, reserva);
-        Reserva savedReserva = reservaRepository.save(reserva);
-        return mapToResponse(savedReserva);
+        return mapToResponse(reservaRepository.save(reserva));
+
     }
 
     @Override
@@ -67,16 +75,10 @@ public class ReservaServiceImpl implements ReservaService {
         Reserva existingReserva = reservaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Reserva no encontrada con ID: " + id));
 
-        Huesped huesped = huespedRepository.findById(reservaRequest.getHuespedId())
-                .orElseThrow(() -> new NotFoundException("Huésped no encontrado con ID: " + reservaRequest.getHuespedId()));
-        Habitacion habitacion = habitacionRepository.findById(reservaRequest.getHabitacionId())
-                .orElseThrow(() -> new NotFoundException("Habitación no encontrada con ID: " + reservaRequest.getHabitacionId()));
-
-        existingReserva.setHuesped(huesped);
-        existingReserva.setHabitacion(habitacion);
+        setRelations(existingReserva, reservaRequest);
         mapRequestToEntity(reservaRequest, existingReserva);
-        Reserva updatedReserva = reservaRepository.save(existingReserva);
-        return mapToResponse(updatedReserva);
+        return mapToResponse(reservaRepository.save(existingReserva));
+
     }
 
     @Override
@@ -110,4 +112,15 @@ public class ReservaServiceImpl implements ReservaService {
         entity.setPrecioTotal(request.getPrecioTotal());
         entity.setEstado(request.getEstado());
     }
+    private void setRelations(Reserva reserva, ReservaRequest request) {
+        Huesped huesped = huespedRepository.findById(request.getHuespedId())
+                .orElseThrow(() -> new NotFoundException("Huésped no encontrado con ID: " + request.getHuespedId()));
+
+        Habitacion habitacion = habitacionRepository.findById(request.getHabitacionId())
+                .orElseThrow(() -> new NotFoundException("Habitación no encontrada con ID: " + request.getHabitacionId()));
+
+        reserva.setHuesped(huesped);
+        reserva.setHabitacion(habitacion);
+    }
+
 }
