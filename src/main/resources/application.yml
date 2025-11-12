@@ -11,6 +11,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
 
   #Configuracion de Jackson
   jackson:

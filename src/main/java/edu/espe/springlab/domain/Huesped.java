@@ -24,6 +24,9 @@ public class Huesped {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private String nacionalidad;
+
     // Constructor por defecto
     public Huesped() {
     }
@@ -75,5 +78,13 @@ public class Huesped {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getNacionalidad() {
+        return nacionalidad;
+    }
+
+    public void setNacionalidad(String nacionalidad) {
+        this.nacionalidad = nacionalidad;
     }
 }

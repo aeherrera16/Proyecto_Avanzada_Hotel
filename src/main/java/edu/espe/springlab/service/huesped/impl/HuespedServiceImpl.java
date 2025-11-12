@@ -70,17 +70,19 @@ public class HuespedServiceImpl implements HuespedService {
                 huesped.getId(),
                 huesped.getNombre(),
                 huesped.getApellido(),
-                huesped.getCedula(), // CAMBIO: Usar getCedula()
+                huesped.getCedula(),
                 huesped.getEmail(),
-                huesped.getTelefono()
+                huesped.getTelefono(),
+                huesped.getNacionalidad()
         );
     }
 
     private void mapRequestToEntity(HuespedRequest request, Huesped entity) {
         entity.setNombre(request.getNombre());
         entity.setApellido(request.getApellido());
-        entity.setCedula(request.getCedula()); // CAMBIO: Usar request.getCedula()
+        entity.setCedula(request.getCedula());
         entity.setEmail(request.getEmail());
         entity.setTelefono(request.getTelefono());
+        entity.setNacionalidad(request.getNacionalidad());
     }
 }

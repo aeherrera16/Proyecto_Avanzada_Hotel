@@ -7,19 +7,21 @@ public class HuespedResponse {
     private String cedula; // CAMBIO: de 'identificacion' a 'cedula'
     private String email;
     private String telefono;
+    private String nacionalidad;
 
     // Constructor por defecto
     public HuespedResponse() {
     }
 
     // Constructor con todos los campos
-    public HuespedResponse(Long id, String nombre, String apellido, String cedula, String email, String telefono) { // CAMBIO: de 'identificacion' a 'cedula'
+    public HuespedResponse(Long id, String nombre, String apellido, String cedula, String email, String telefono, String nacionalidad) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.cedula = cedula; // CAMBIO: de 'identificacion' a 'cedula'
+        this.cedula = cedula;
         this.email = email;
         this.telefono = telefono;
+        this.nacionalidad = nacionalidad;
     }
 
     // Getters y Setters
@@ -69,5 +71,13 @@ public class HuespedResponse {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public String getNacionalidad() {
+        return nacionalidad;
+    }
+
+    public void setNacionalidad(String nacionalidad) {
+        this.nacionalidad = nacionalidad;
     }
 }

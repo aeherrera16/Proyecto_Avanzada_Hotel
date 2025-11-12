@@ -27,6 +27,10 @@ public class HuespedRequest {
     @Pattern(regexp = "^[0-9]{10}$", message = "El número de teléfono debe tener 10 dígitos numéricos")
     private String telefono;
 
+    @NotBlank(message = "La nacionalidad no puede estar vacía")
+    @Size(max = 100, message = "La nacionalidad no puede exceder los 100 caracteres")
+    private String nacionalidad;
+
     // Constructor por defecto
     public HuespedRequest() {
     }
@@ -70,5 +74,13 @@ public class HuespedRequest {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public String getNacionalidad() {
+        return nacionalidad;
+    }
+
+    public void setNacionalidad(String nacionalidad) {
+        this.nacionalidad = nacionalidad;
     }
 }
