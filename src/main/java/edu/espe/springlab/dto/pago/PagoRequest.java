@@ -2,6 +2,8 @@ package edu.espe.springlab.dto.pago;
 
 import edu.espe.springlab.validator.PagoValido;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -13,15 +15,24 @@ public class PagoRequest {
     private Long reservaId;
 
     @NotNull(message = "El monto no puede ser nulo")
-    @Min(value = 0, message = "El monto debe ser mayor o igual a 0")
+    @DecimalMin(value = "0.0", inclusive = true, message = "El monto debe ser mayor o igual a 0")
     private Double monto;
+
 
     @NotNull(message = "La fecha de pago no puede ser nula")
     private LocalDateTime fechaPago;
 
+    @Pattern(
+            regexp = "^(EFECTIVO|TARJETA|TRANSFERENCIA)$",
+            message = "El método de pago debe ser EFECTIVO, TARJETA o TRANSFERENCIA"
+    )
     @NotBlank(message = "El método de pago no puede estar vacío")
     private String metodoPago;
 
+    @Pattern(
+            regexp = "^(PENDIENTE|COMPLETADO|CANCELADO)$",
+            message = "El estado del pago debe ser PENDIENTE, COMPLETADO o CANCELADO"
+    )
     @NotBlank(message = "El estado del pago no puede estar vacío")
     private String estado;
 
