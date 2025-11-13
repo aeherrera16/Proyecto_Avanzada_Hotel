@@ -31,19 +31,27 @@ public class PagoValidator implements ConstraintValidator<PagoValido, PagoReques
             var reserva = reservaRepository.findById(request.getReservaId())
                     .orElseThrow(() -> new NotFoundException("Reserva no encontrada"));
 
-            // 🔍 VALIDACIÓN 1: Fecha de pago dentro del rango de reserva
+            // VALIDACIÓN 1: Fecha de pago dentro del rango de reserva
             var fechaPago = request.getFechaPago().toLocalDate();
             var fechaEntradaReserva = reserva.getFechaEntrada();
             var fechaSalidaReserva = reserva.getFechaSalida();
 
-            if (fechaPago.isBefore(fechaEntradaReserva) || fechaPago.isAfter(fechaSalidaReserva)) {
+
+            // Se permite pagar hasta 1 año antes de la fecha de entrada
+            var minFechaPermitida = fechaEntradaReserva.minusYears(1);
+
+            // Reglas:
+            // - No puede pagarse más de 1 año antes
+            // - No puede pagarse después de la salida
+            if (fechaPago.isBefore(minFechaPermitida) || fechaPago.isAfter(fechaSalidaReserva)) {
                 isValid = false;
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         "La fecha de pago (" + fechaPago + ") debe estar entre " +
-                                fechaEntradaReserva + " y " + fechaSalidaReserva + " de la reserva"
+                                minFechaPermitida + " y " + fechaSalidaReserva + " de la reserva"
                 ).addPropertyNode("fechaPago").addConstraintViolation();
             }
+
 
             //  VALIDACIÓN 2: Monto debe ser EXACTAMENTE igual al precioTotal de la reserva
             var montoPago = request.getMonto();
@@ -57,7 +65,7 @@ public class PagoValidator implements ConstraintValidator<PagoValido, PagoReques
                 ).addPropertyNode("monto").addConstraintViolation();
             }
 
-            // 🔍 VALIDACIÓN 3: Fecha de pago no puede ser en el futuro lejano (máximo 1 año)
+            // VALIDACIÓN 3: Fecha de pago no puede ser en el futuro lejano (máximo 1 año)
             var fechaPagoCompleta = request.getFechaPago();
             var maxFechaPermitida = LocalDateTime.now().plusYears(1);
 
