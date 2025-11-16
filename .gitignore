@@ -40,6 +40,12 @@ out/
 ###LOGS
 *.log
 
+### H2 Database Files ###
+data/
+*.db
+*.mv.db
+*.trace.db
+
 ##SISTEMA OPERATIVO
 .DB_STORE
 Thumbs.db
