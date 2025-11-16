@@ -117,6 +117,7 @@ function ReservaFlow() {
       const pagoPayload = {
         reservaId: reservaResponse.data.id,
         monto: reservaData.precioTotal,
+        fechaPago: new Date().toISOString(),
         metodoPago: datosPago.metodoPago,
         estado: 'Completado'
       };
