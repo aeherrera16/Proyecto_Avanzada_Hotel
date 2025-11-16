@@ -4,149 +4,148 @@ import { habitacionesService, huespedesService, reservasService, pagosService } 
 import PagoSimulador from '../components/PagoSimulador';
 
 function ReservaFlow() {
-  const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [habitacionesDisponibles, setHabitacionesDisponibles] = useState([]);
+    const navigate = useNavigate();
+    const [currentStep, setCurrentStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [habitacionesDisponibles, setHabitacionesDisponibles] = useState([]);
 
-  // Datos del formulario
-  const [huespedData, setHuespedData] = useState({
-    nombre: '',
-    apellido: '',
-    cedula: '',
-    email: '',
-    telefono: '',
-    nacionalidad: ''
-  });
+    // Datos del formulario
+    const [huespedData, setHuespedData] = useState({
+        nombre: '',
+        apellido: '',
+        cedula: '',
+        email: '',
+        telefono: '',
+        nacionalidad: ''
+    });
 
-  const [reservaData, setReservaData] = useState({
-    habitacionId: null,
-    fechaEntrada: '',
-    fechaSalida: '',
-    precioTotal: 0
-  });
+    const [reservaData, setReservaData] = useState({
+        habitacionId: null,
+        fechaEntrada: '',
+        fechaSalida: '',
+        precioTotal: 0
+    });
 
-  const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(null);
-  const [huespedId, setHuespedId] = useState(null);
-  const [reservaId, setReservaId] = useState(null);
+    const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(null);
+    const [huespedId, setHuespedId] = useState(null);
+    const [reservaId, setReservaId] = useState(null);
 
-  useEffect(() => {
-    if (currentStep === 2) {
-      cargarHabitaciones();
-    }
-  }, [currentStep]);
+    useEffect(() => {
+        if (currentStep === 2) {
+            cargarHabitaciones();
+        }
+    }, [currentStep]);
 
-  const cargarHabitaciones = async () => {
-    try {
-      setLoading(true);
-      const response = await habitacionesService.getAll();
-      const disponibles = response.data.filter(h => h.estado === 'Disponible');
-      setHabitacionesDisponibles(disponibles);
-    } catch (err) {
-      setError('Error al cargar habitaciones disponibles');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calcularPrecioTotal = () => {
-    if (!reservaData.fechaEntrada || !reservaData.fechaSalida || !habitacionSeleccionada) {
-      return 0;
-    }
-    const entrada = new Date(reservaData.fechaEntrada);
-    const salida = new Date(reservaData.fechaSalida);
-    const noches = Math.ceil((salida - entrada) / (1000 * 60 * 60 * 24));
-    return noches * habitacionSeleccionada.precio;
-  };
-
-  const handleHuespedSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await huespedesService.create(huespedData);
-      setHuespedId(response.data.id);
-      setCurrentStep(2);
-    } catch (err) {
-      // Manejo específico para cédula duplicada
-      if (err.response?.data?.message?.includes('Duplicate entry') || 
-          err.message?.includes('Duplicate entry')) {
-        setError('⚠️ Ya existe un huésped registrado con esa cédula o email. Por favor, use datos diferentes.');
-      } else {
-        setError('Error al registrar huésped: ' + (err.response?.data?.message || err.message));
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleHabitacionSelect = (habitacion) => {
-    setHabitacionSeleccionada(habitacion);
-    setReservaData({ ...reservaData, habitacionId: habitacion.id });
-  };
-
-  const handleFechasSubmit = (e) => {
-    e.preventDefault();
-    const precioTotal = calcularPrecioTotal();
-    setReservaData({ ...reservaData, precioTotal });
-    setCurrentStep(4);
-  };
-
-  const handlePagoCompletado = async (datosPago) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // 1. Crear la reserva
-      const reservaPayload = {
-        huespedId: huespedId,
-        habitacionId: reservaData.habitacionId,
-        fechaEntrada: reservaData.fechaEntrada,
-        fechaSalida: reservaData.fechaSalida,
-        precioTotal: reservaData.precioTotal,
-        estado: 'Confirmada'
-      };
-
-      const reservaResponse = await reservasService.create(reservaPayload);
-      setReservaId(reservaResponse.data.id);
-
-      // 2. Registrar el pago
-      const pagoPayload = {
-        reservaId: reservaResponse.data.id,
-        monto: reservaData.precioTotal,
-        fechaPago: new Date().toISOString(),
-        metodoPago: datosPago.metodoPago,
-        estado: 'Completado'
-      };
-
-      await pagosService.create(pagoPayload);
-
-      // 3. Actualizar estado de la habitación a Ocupada
-      await habitacionesService.update(reservaData.habitacionId, {
-        ...habitacionSeleccionada,
-        estado: 'Ocupada'
-      });
-
-      setCurrentStep(5);
-    } catch (err) {
-      setError('Error al procesar la reserva: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getImageByTipo = (tipo) => {
-    const images = {
-      'Simple': 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'Doble': 'https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'Suite': 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'Suite Presidencial': 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    const cargarHabitaciones = async () => {
+        try {
+            setLoading(true);
+            const response = await habitacionesService.getAll();
+            const disponibles = response.data.filter(h => h.estado === 'Disponible');
+            setHabitacionesDisponibles(disponibles);
+        } catch (err) {
+            setError('Error al cargar habitaciones disponibles');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
-    return images[tipo] || images['Simple'];
-  };
+
+    const calcularPrecioTotal = () => {
+        if (!reservaData.fechaEntrada || !reservaData.fechaSalida || !habitacionSeleccionada) {
+            return 0;
+        }
+        const entrada = new Date(reservaData.fechaEntrada);
+        const salida = new Date(reservaData.fechaSalida);
+        const noches = Math.ceil((salida - entrada) / (1000 * 60 * 60 * 24));
+        return noches * habitacionSeleccionada.precio;
+    };
+
+    const handleHuespedSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await huespedesService.create(huespedData);
+            setHuespedId(response.data.id);
+            setCurrentStep(2);
+        } catch (err) {
+            if (err.response?.data?.message?.includes('Duplicate entry') ||
+                err.message?.includes('Duplicate entry')) {
+                setError('⚠️ Ya existe un huésped registrado con esa cédula o email. Por favor, use datos diferentes.');
+            } else {
+                setError('Error al registrar huésped: ' + (err.response?.data?.message || err.message));
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleHabitacionSelect = (habitacion) => {
+        setHabitacionSeleccionada(habitacion);
+        setReservaData({ ...reservaData, habitacionId: habitacion.id });
+    };
+
+    const handleFechasSubmit = (e) => {
+        e.preventDefault();
+        const precioTotal = calcularPrecioTotal();
+        setReservaData({ ...reservaData, precioTotal });
+        setCurrentStep(4);
+    };
+
+    const handlePagoCompletado = async (datosPago) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            // 1. Crear la reserva
+            const reservaPayload = {
+                huespedId: huespedId,
+                habitacionId: reservaData.habitacionId,
+                fechaEntrada: reservaData.fechaEntrada,
+                fechaSalida: reservaData.fechaSalida,
+                precioTotal: reservaData.precioTotal,
+                estado: 'Confirmada'
+            };
+
+            const reservaResponse = await reservasService.create(reservaPayload);
+            setReservaId(reservaResponse.data.id);
+
+            // 2. Registrar el pago (CORREGIDO)
+            const pagoPayload = {
+                reservaId: reservaResponse.data.id,
+                monto: reservaData.precioTotal,
+                fechaPago: new Date().toISOString(),
+                metodoPago: "TARJETA",     // <-- DATO VÁLIDO PARA SPRING BOOT
+                estado: "COMPLETADO"       // <-- DATO VÁLIDO PARA SPRING BOOT
+            };
+
+            await pagosService.create(pagoPayload);
+
+            // 3. Actualizar habitación
+            await habitacionesService.update(reservaData.habitacionId, {
+                ...habitacionSeleccionada,
+                estado: 'Ocupada'
+            });
+
+            setCurrentStep(5);
+        } catch (err) {
+            setError('Error al procesar la reserva: ' + (err.response?.data?.message || err.message));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getImageByTipo = (tipo) => {
+        const images = {
+            'Simple': 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            'Doble': 'https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            'Suite': 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            'Suite Presidencial': 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+        };
+        return images[tipo] || images['Simple'];
+    };
 
   return (
     <div className="container">
