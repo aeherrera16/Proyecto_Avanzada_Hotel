@@ -23,10 +23,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// Drivers de bases de datos
+	runtimeOnly 'com.mysql:mysql-connector-j'      // MySQL
+	runtimeOnly 'org.postgresql:postgresql'        // PostgreSQL (Render)
+	runtimeOnly 'com.h2database:h2:2.2.220'       // H2 (desarrollo local)
+
+	// Testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation "com.h2database:h2"
+    testImplementation 'com.h2database:h2:2.2.220'
 }
 
 tasks.named('test') {

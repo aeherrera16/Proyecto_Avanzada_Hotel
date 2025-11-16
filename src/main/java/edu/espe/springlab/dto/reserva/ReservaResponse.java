@@ -1,5 +1,7 @@
 package edu.espe.springlab.dto.reserva;
 
+import edu.espe.springlab.dto.huesped.HuespedResponse;
+import edu.espe.springlab.dto.habitacion.HabitacionResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -7,8 +9,10 @@ public class ReservaResponse {
     private Long id;
     private Long huespedId;
     private String huespedNombreCompleto; // Para mostrar el nombre del huésped
+    private HuespedResponse huesped; // Objeto completo del huésped
     private Long habitacionId;
     private String habitacionNumero; // Para mostrar el número de habitación
+    private HabitacionResponse habitacion; // Objeto completo de la habitación
     private LocalDate fechaEntrada;
     private LocalDate fechaSalida;
     private Double precioTotal;
@@ -21,12 +25,14 @@ public class ReservaResponse {
     }
 
     // Constructor con todos los campos
-    public ReservaResponse(Long id, Long huespedId, String huespedNombreCompleto, Long habitacionId, String habitacionNumero, LocalDate fechaEntrada, LocalDate fechaSalida, Double precioTotal, String estado, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
+    public ReservaResponse(Long id, Long huespedId, String huespedNombreCompleto, HuespedResponse huesped, Long habitacionId, String habitacionNumero, HabitacionResponse habitacion, LocalDate fechaEntrada, LocalDate fechaSalida, Double precioTotal, String estado, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
         this.id = id;
         this.huespedId = huespedId;
         this.huespedNombreCompleto = huespedNombreCompleto;
+        this.huesped = huesped;
         this.habitacionId = habitacionId;
         this.habitacionNumero = habitacionNumero;
+        this.habitacion = habitacion;
         this.fechaEntrada = fechaEntrada;
         this.fechaSalida = fechaSalida;
         this.precioTotal = precioTotal;
@@ -74,6 +80,22 @@ public class ReservaResponse {
 
     public void setHabitacionNumero(String habitacionNumero) {
         this.habitacionNumero = habitacionNumero;
+    }
+
+    public HuespedResponse getHuesped() {
+        return huesped;
+    }
+
+    public void setHuesped(HuespedResponse huesped) {
+        this.huesped = huesped;
+    }
+
+    public HabitacionResponse getHabitacion() {
+        return habitacion;
+    }
+
+    public void setHabitacion(HabitacionResponse habitacion) {
+        this.habitacion = habitacion;
     }
 
     public LocalDate getFechaEntrada() {

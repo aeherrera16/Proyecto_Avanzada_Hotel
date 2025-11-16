@@ -1,13 +1,12 @@
-name: CI - Build and Test
+name: CI/CD - Build, Test and Deploy
+
 on:
   push:
     branches:
       - main
-      - feature/Arico
   pull_request:
     branches:
       - main
-      - feature/Arico
 
 jobs:
   build:
@@ -30,3 +29,13 @@ jobs:
 
       - name: Run Test
         run: ./gradlew test
+
+
+
+
+
+
+
+
+
+
