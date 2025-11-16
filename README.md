@@ -92,26 +92,19 @@ docker run -p 8080:8080 hotel-system
 
 ## 🧪 Testing
 
-El proyecto incluye **41 tests** que garantizan la calidad del código:
+El proyecto incluye **21 tests unitarios** que verifican las operaciones CRUD de cada entidad:
 
-### Tests de Repositorio (21 tests)
-- Tests de integración para las operaciones CRUD de cada entidad
-- Verifican la persistencia de datos en la base de datos
-
-### Tests de Controladores/Endpoints (20 tests)
-- Tests unitarios para cada endpoint de la API REST
-- Validan las respuestas HTTP y el formato JSON
-- Prueban todos los métodos: GET, POST, PUT, DELETE
+- **HabitacionRepositoryTest**: 5 tests (Create, Read, Update, Delete, FindAll)
+- **HuespedRepositoryTest**: 5 tests (Create, Read, Update, Delete, FindAll)
+- **ReservaRepositoryTest**: 5 tests (Create, Read, Update, Delete, FindAll)
+- **PagoRepositoryTest**: 5 tests (Create, Read, Update, Delete, FindAll)
+- **SpringLabApplicationTests**: 1 test (contextLoads)
 
 Ejecutar tests:
 ```bash
 ./gradlew test
 ```
 
-Ver reporte de cobertura:
-```bash
-./gradlew test jacocoTestReport
-```
 
 ## 📁 Estructura del Proyecto
 
