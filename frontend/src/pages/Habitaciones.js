@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { habitacionesService } from '../services/api';
 import { Link } from 'react-router-dom';
+import Notification from '../components/Notification';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 function Habitaciones() {
   const [habitaciones, setHabitaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({ message: '', type: '' });
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, habitacionId: null });
 
   useEffect(() => {
     fetchHabitaciones();
@@ -25,16 +29,35 @@ function Habitaciones() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Está seguro de que desea eliminar esta habitación?')) {
-      try {
-        await habitacionesService.delete(id);
-        fetchHabitaciones();
-      } catch (err) {
-        alert('Error al eliminar la habitación');
-        console.error('Error:', err);
-      }
+  const showNotification = (message, type) => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification({ message: '', type: '' });
+    }, 5000);
+  };
+
+  const handleDeleteClick = (id) => {
+    setConfirmDialog({ isOpen: true, habitacionId: id });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const id = confirmDialog.habitacionId;
+    setConfirmDialog({ isOpen: false, habitacionId: null });
+
+    try {
+      await habitacionesService.delete(id);
+      showNotification('Habitación eliminada exitosamente', 'success');
+      fetchHabitaciones();
+    } catch (err) {
+      console.error('Error:', err);
+      const errorMessage = err.response?.data?.message ||
+        'No se puede eliminar la habitación porque tiene reservas asociadas. Por favor, elimine primero las reservas.';
+      showNotification(errorMessage, 'error');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setConfirmDialog({ isOpen: false, habitacionId: null });
   };
 
   const getImageByTipo = (tipo) => {
@@ -57,6 +80,20 @@ function Habitaciones() {
 
   return (
     <div className="container">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        onClose={() => setNotification({ message: '', type: '' })}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Confirmar eliminación"
+        message="¿Está seguro de que desea eliminar esta habitación? Esta acción no se puede deshacer."
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
+
       <div className="section-title">
         <h2>Nuestras Habitaciones</h2>
         <div className="divider"></div>
@@ -91,7 +128,7 @@ function Habitaciones() {
                   Editar
                 </Link>
                 <button
-                  onClick={() => handleDelete(habitacion.id)}
+                  onClick={() => handleDeleteClick(habitacion.id)}
                   className="btn-danger"
                 >
                   Eliminar

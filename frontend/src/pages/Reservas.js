@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { reservasService, habitacionesService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import Notification from '../components/Notification';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 function Reservas() {
   const navigate = useNavigate();
@@ -10,6 +12,8 @@ function Reservas() {
   const [filtroEstado, setFiltroEstado] = useState('Todas');
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [notification, setNotification] = useState({ message: '', type: '' });
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, reservaId: null, habitacionId: null });
 
   useEffect(() => {
     fetchReservas();
@@ -33,29 +37,47 @@ function Reservas() {
     }
   };
 
-  const handleCancelarReserva = async (reservaId, habitacionId) => {
-    if (window.confirm('¿Está seguro de que desea cancelar esta reserva?')) {
-      try {
-        // Actualizar estado de la reserva
-        const reserva = reservas.find(r => r.id === reservaId);
-        await reservasService.update(reservaId, {
-          ...reserva,
-          estado: 'Cancelada'
-        });
+  const showNotification = (message, type) => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification({ message: '', type: '' });
+    }, 5000);
+  };
 
-        // Liberar la habitación
-        const habitacionResponse = await habitacionesService.getById(habitacionId);
-        await habitacionesService.update(habitacionId, {
-          ...habitacionResponse.data,
-          estado: 'Disponible'
-        });
+  const handleCancelarReservaClick = (reservaId, habitacionId) => {
+    setConfirmDialog({ isOpen: true, reservaId, habitacionId });
+  };
 
-        fetchReservas();
-      } catch (err) {
-        alert('Error al cancelar la reserva');
-        console.error('Error:', err);
-      }
+  const handleCancelarReservaConfirm = async () => {
+    const { reservaId, habitacionId } = confirmDialog;
+    setConfirmDialog({ isOpen: false, reservaId: null, habitacionId: null });
+
+    try {
+      // Actualizar estado de la reserva
+      const reserva = reservas.find(r => r.id === reservaId);
+      await reservasService.update(reservaId, {
+        ...reserva,
+        estado: 'Cancelada'
+      });
+
+      // Liberar la habitación
+      const habitacionResponse = await habitacionesService.getById(habitacionId);
+      await habitacionesService.update(habitacionId, {
+        ...habitacionResponse.data,
+        estado: 'Disponible'
+      });
+
+      showNotification('Reserva cancelada exitosamente', 'success');
+      fetchReservas();
+    } catch (err) {
+      console.error('Error:', err);
+      const errorMessage = err.response?.data?.message || 'Error al cancelar la reserva';
+      showNotification(errorMessage, 'error');
     }
+  };
+
+  const handleCancelarReservaCancel = () => {
+    setConfirmDialog({ isOpen: false, reservaId: null, habitacionId: null });
   };
 
   const handleConfirmarReserva = async (reservaId) => {
@@ -65,10 +87,12 @@ function Reservas() {
         ...reserva,
         estado: 'Confirmada'
       });
+      showNotification('Reserva confirmada exitosamente', 'success');
       fetchReservas();
     } catch (err) {
-      alert('Error al confirmar la reserva');
       console.error('Error:', err);
+      const errorMessage = err.response?.data?.message || 'Error al confirmar la reserva';
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -117,6 +141,20 @@ function Reservas() {
 
   return (
     <div className="container">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        onClose={() => setNotification({ message: '', type: '' })}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Confirmar cancelación"
+        message="¿Está seguro de que desea cancelar esta reserva? La habitación será liberada y la reserva no se podrá recuperar."
+        onConfirm={handleCancelarReservaConfirm}
+        onCancel={handleCancelarReservaCancel}
+      />
+
       <div className="section-title">
         <h2>Gestión de Reservas</h2>
         <div className="divider"></div>
@@ -239,7 +277,7 @@ function Reservas() {
                   
                   {(reserva.estado === 'Confirmada' || reserva.estado === 'Pendiente') && (
                     <button 
-                      onClick={() => handleCancelarReserva(reserva.id, reserva.habitacion?.id)} 
+                      onClick={() => handleCancelarReservaClick(reserva.id, reserva.habitacion?.id)}
                       className="btn-cancel"
                     >
                       Cancelar
