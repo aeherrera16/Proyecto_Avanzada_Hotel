@@ -14,6 +14,7 @@ function Reservas() {
   const [showModal, setShowModal] = useState(false);
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, reservaId: null, habitacionId: null });
+  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, reservaId: null, habitacionId: null });
 
   useEffect(() => {
     fetchReservas();
@@ -96,6 +97,43 @@ function Reservas() {
     }
   };
 
+  const handleEliminarReservaClick = (reservaId, habitacionId) => {
+    setDeleteDialog({ isOpen: true, reservaId, habitacionId });
+  };
+
+  const handleEliminarReservaConfirm = async () => {
+    const { reservaId, habitacionId } = deleteDialog;
+    setDeleteDialog({ isOpen: false, reservaId: null, habitacionId: null });
+
+    try {
+      // Liberar la habitación antes de eliminar la reserva
+      if (habitacionId) {
+        try {
+          const habitacionResponse = await habitacionesService.getById(habitacionId);
+          await habitacionesService.update(habitacionId, {
+            ...habitacionResponse.data,
+            estado: 'Disponible'
+          });
+        } catch (err) {
+          console.error('Error al liberar habitación:', err);
+        }
+      }
+
+      // Eliminar la reserva
+      await reservasService.delete(reservaId);
+      showNotification('Reserva eliminada exitosamente', 'success');
+      fetchReservas();
+    } catch (err) {
+      console.error('Error:', err);
+      const errorMessage = err.response?.data?.message || 'Error al eliminar la reserva';
+      showNotification(errorMessage, 'error');
+    }
+  };
+
+  const handleEliminarReservaCancel = () => {
+    setDeleteDialog({ isOpen: false, reservaId: null, habitacionId: null });
+  };
+
   const verDetalles = (reserva) => {
     setReservaSeleccionada(reserva);
     setShowModal(true);
@@ -150,9 +188,17 @@ function Reservas() {
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
         title="Confirmar cancelación"
-        message="¿Está seguro de que desea cancelar esta reserva? La habitación será liberada y la reserva no se podrá recuperar."
+        message="¿Está seguro de que desea cancelar esta reserva? La habitación será liberada pero la reserva permanecerá en el sistema con estado 'Cancelada'."
         onConfirm={handleCancelarReservaConfirm}
         onCancel={handleCancelarReservaCancel}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        title="Confirmar eliminación"
+        message="¿Está seguro de que desea ELIMINAR esta reserva? Esta acción es PERMANENTE y no se puede deshacer. La reserva será eliminada completamente del sistema."
+        onConfirm={handleEliminarReservaConfirm}
+        onCancel={handleEliminarReservaCancel}
       />
 
       <div className="section-title">
@@ -281,6 +327,15 @@ function Reservas() {
                       className="btn-cancel"
                     >
                       Cancelar
+                    </button>
+                  )}
+
+                  {(reserva.estado === 'Cancelada' || reserva.estado === 'Completada') && (
+                    <button
+                      onClick={() => handleEliminarReservaClick(reserva.id, reserva.habitacion?.id)}
+                      className="btn-danger"
+                    >
+                      Eliminar
                     </button>
                   )}
                 </div>
