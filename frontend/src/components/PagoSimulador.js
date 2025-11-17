@@ -246,5 +246,4 @@ function PagoSimulador({ monto, onPagoCompletado, onCancelar, loading }) {
     </div>
   );
 }
-
 export default PagoSimulador;
