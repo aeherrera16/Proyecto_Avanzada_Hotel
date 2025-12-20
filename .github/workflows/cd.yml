@@ -1,0 +1,20 @@
+name: CD to Render
+on:
+  workflow_run:
+    workflows: ["CI - Build and Test"]
+    types:
+      - completed
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract short commit SHA
+        id: sha
+        run: echo "sha_short=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
+      - name: Trigger Render Deploy with GitHub version
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d '{"environment_variables": {"APP_VERSION": "build-${{ github.run_number }}-${{ steps.sha.outputs.sha_short }}"}}' \
+          ${{ secrets.RENDER_DEPLOY_HOOK }}
