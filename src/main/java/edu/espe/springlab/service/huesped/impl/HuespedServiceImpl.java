@@ -4,6 +4,7 @@ import edu.espe.springlab.domain.Huesped;
 import edu.espe.springlab.dto.huesped.HuespedRequest;
 import edu.espe.springlab.dto.huesped.HuespedResponse;
 import edu.espe.springlab.repository.HuespedRepository;
+import edu.espe.springlab.repository.ReservaRepository;
 import edu.espe.springlab.service.huesped.HuespedService;
 import edu.espe.springlab.web.advice.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,11 @@ import java.util.stream.Collectors;
 public class HuespedServiceImpl implements HuespedService {
 
     private final HuespedRepository huespedRepository;
+    private final ReservaRepository reservaRepository;
 
-    public HuespedServiceImpl(HuespedRepository huespedRepository) {
+    public HuespedServiceImpl(HuespedRepository huespedRepository, ReservaRepository reservaRepository) {
         this.huespedRepository = huespedRepository;
+        this.reservaRepository = reservaRepository;
     }
 
     @Override
@@ -62,6 +65,9 @@ public class HuespedServiceImpl implements HuespedService {
         if (!huespedRepository.existsById(id)) {
             throw new NotFoundException("Huésped no encontrado con ID: " + id);
         }
+        // Eliminar primero las reservas asociadas al huésped
+        reservaRepository.deleteByHuespedId(id);
+        // Luego eliminar el huésped
         huespedRepository.deleteById(id);
     }
 

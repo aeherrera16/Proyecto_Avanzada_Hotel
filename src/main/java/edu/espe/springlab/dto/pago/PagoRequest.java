@@ -22,17 +22,10 @@ public class PagoRequest {
     @NotNull(message = "La fecha de pago no puede ser nula")
     private LocalDateTime fechaPago;
 
-    @Pattern(
-            regexp = "^(EFECTIVO|TARJETA|TRANSFERENCIA)$",
-            message = "El método de pago debe ser EFECTIVO, TARJETA o TRANSFERENCIA"
-    )
+    // ACEPTA: "Tarjeta de Crédito", "Tarjeta de Débito", "EFECTIVO", etc.
     @NotBlank(message = "El método de pago no puede estar vacío")
     private String metodoPago;
 
-    @Pattern(
-            regexp = "^(PENDIENTE|COMPLETADO|CANCELADO)$",
-            message = "El estado del pago debe ser PENDIENTE, COMPLETADO o CANCELADO"
-    )
     @NotBlank(message = "El estado del pago no puede estar vacío")
     private String estado;
 

@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { huespedesService } from '../services/api';
 import { Link } from 'react-router-dom';
+import Notification from '../components/Notification';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 function Huespedes() {
   const [huespedes, setHuespedes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState({ message: '', type: '' });
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, huespedId: null });
 
   useEffect(() => {
     fetchHuespedes();
@@ -25,16 +29,35 @@ function Huespedes() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Está seguro de que desea eliminar este huésped?')) {
-      try {
-        await huespedesService.delete(id);
-        fetchHuespedes();
-      } catch (err) {
-        alert('Error al eliminar el huésped');
-        console.error('Error:', err);
-      }
+  const showNotification = (message, type) => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification({ message: '', type: '' });
+    }, 5000);
+  };
+
+  const handleDeleteClick = (id) => {
+    setConfirmDialog({ isOpen: true, huespedId: id });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const id = confirmDialog.huespedId;
+    setConfirmDialog({ isOpen: false, huespedId: null });
+
+    try {
+      await huespedesService.delete(id);
+      showNotification('Huésped eliminado exitosamente', 'success');
+      fetchHuespedes();
+    } catch (err) {
+      console.error('Error:', err);
+      const errorMessage = err.response?.data?.message ||
+        'No se puede eliminar el huésped porque tiene reservas asociadas. Por favor, elimine primero las reservas.';
+      showNotification(errorMessage, 'error');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setConfirmDialog({ isOpen: false, huespedId: null });
   };
 
   if (loading) {
@@ -47,6 +70,20 @@ function Huespedes() {
 
   return (
     <div className="container">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        onClose={() => setNotification({ message: '', type: '' })}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Confirmar eliminación"
+        message="¿Está seguro de que desea eliminar este huésped? Esta acción no se puede deshacer."
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
+
       <div className="section-title">
         <h2>Gestión de Huéspedes</h2>
         <div className="divider"></div>
@@ -75,7 +112,7 @@ function Huespedes() {
                   Editar
                 </Link>
                 <button
-                  onClick={() => handleDelete(huesped.id)}
+                  onClick={() => handleDeleteClick(huesped.id)}
                   className="btn-danger"
                 >
                   Eliminar
