@@ -1,4 +1,4 @@
-package edu.espe.springlab.config;
+/*package edu.espe.springlab.config;
 
 import edu.espe.springlab.interceptor.RequestLoggingInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,3 +27,4 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600);
     }
 }
+*/
