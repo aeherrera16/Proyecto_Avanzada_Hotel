@@ -1,23 +1,21 @@
 package edu.espe.springlab.domain;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.relational.core.mapping.Column;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
 @Table(name = "reservas")
 public class Reserva {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "huesped_id", nullable = false)
-    private Huesped huesped;
+    @Column(name = "huesped_id", nullable = false)
+    private Long huespedId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "habitacion_id", nullable = false)
-    private Habitacion habitacion;
+    @Column(name = "habitacion_id", nullable = false)
+    private Long habitacionId;
 
     @Column(name = "fecha_entrada", nullable = false)
     private LocalDate fechaEntrada;
@@ -37,17 +35,6 @@ public class Reserva {
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    @PrePersist
-    protected void onCreate() {
-        fechaCreacion = LocalDateTime.now();
-        fechaActualizacion = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        fechaActualizacion = LocalDateTime.now();
-    }
-
     // Getters y Setters
     public Long getId() {
         return id;
@@ -57,20 +44,20 @@ public class Reserva {
         this.id = id;
     }
 
-    public Huesped getHuesped() {
-        return huesped;
+    public Long getHuespedId() {
+        return huespedId;
     }
 
-    public void setHuesped(Huesped huesped) {
-        this.huesped = huesped;
+    public void setHuespedId(Long huespedId) {
+        this.huespedId = huespedId;
     }
 
-    public Habitacion getHabitacion() {
-        return habitacion;
+    public Long getHabitacionId() {
+        return habitacionId;
     }
 
-    public void setHabitacion(Habitacion habitacion) {
-        this.habitacion = habitacion;
+    public void setHabitacionId(Long habitacionId) {
+        this.habitacionId = habitacionId;
     }
 
     public LocalDate getFechaEntrada() {

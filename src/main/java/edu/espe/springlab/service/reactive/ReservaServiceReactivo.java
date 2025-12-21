@@ -1,6 +1,7 @@
 package edu.espe.springlab.service.reactive;
 
 import edu.espe.springlab.domain.Reserva;
+import edu.espe.springlab.exception.reactive.ReactiveResourceNotFoundException;
 import edu.espe.springlab.exception.reactive.ReactiveValidationException;
 import edu.espe.springlab.repository.ReservaRepository;
 import org.slf4j.Logger;

@@ -1,25 +1,17 @@
 package edu.espe.springlab.repository;
 
 import edu.espe.springlab.domain.Reserva;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface ReservaRepository extends JpaRepository<Reserva, Long> {
-    boolean existsByHabitacionIdAndFechaEntradaLessThanEqualAndFechaSalidaGreaterThanEqual(
-            Long habitacionId,
-            LocalDate fechaSalida,
-            LocalDate fechaEntrada
-    );
+public interface ReservaRepository extends ReactiveCrudRepository<Reserva, Long> {
 
-    @Modifying
-    @Query("DELETE FROM Reserva r WHERE r.huesped.id = :huespedId")
-    void deleteByHuespedId(@Param("huespedId") Long huespedId);
-
-    boolean existsByHuespedId(Long huespedId);
+    Flux<Reserva> findByHuespedId(Long huespedId);
+    Flux<Reserva> findByHabitacionId(Long habitacionId);
+    Flux<Reserva> findByEstado(String estado);
+    Mono<Boolean> existsByHuespedId(Long huespedId);
+    Mono<Void> deleteByHuespedId(Long huespedId);
 }
