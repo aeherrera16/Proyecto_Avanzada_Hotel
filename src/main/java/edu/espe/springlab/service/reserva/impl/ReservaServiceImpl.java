@@ -128,7 +128,7 @@ public class ReservaServiceImpl implements ReservaService {
         response.setEstado(reserva.getEstado());
         response.setFechaCreacion(reserva.getFechaCreacion());
         response.setFechaActualizacion(reserva.getFechaActualizacion());
-        
+
         return response;
     }
 

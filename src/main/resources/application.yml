@@ -1,5 +1,5 @@
 spring:
-  #Configuracion del datasource
+  # Configuracion del datasource
 
   # OPCION 1: MySQL Local (comentada - descomentar si quieres usar MySQL local)
   #datasource:
@@ -33,6 +33,16 @@ spring:
     init:
       mode: never
   jpa:
+
+  # CONFIGURACION REACTIVA CON R2DBC (NUEVA)
+  r2dbc:
+    url: r2dbc:h2:mem:///hoteldb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  # Configuracion para WebFlux
+  webflux:
+    base-path: /api
     hibernate:
       ddl-auto: update
     show-sql: true
