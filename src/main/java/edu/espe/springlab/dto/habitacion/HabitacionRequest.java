@@ -2,16 +2,10 @@ package edu.espe.springlab.dto.habitacion;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 
 public class HabitacionRequest {
-
-    @NotNull(message = "El número de habitación no puede estar vacío")
-    @Pattern(
-            regexp = "^[0-9]{1,4}$",
-            message = "El número de habitación solo puede contener números y máximo 4 dígitos"
-    )
+    @NotBlank(message = "El número de habitación no puede estar vacío")
     private String numero;
 
     @NotBlank(message = "El tipo de habitación no puede estar vacío")
