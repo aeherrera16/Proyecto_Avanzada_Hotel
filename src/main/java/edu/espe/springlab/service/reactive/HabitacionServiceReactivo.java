@@ -2,7 +2,6 @@ package edu.espe.springlab.service.reactive;
 
 import edu.espe.springlab.domain.Habitacion;
 import edu.espe.springlab.repository.HabitacionRepository;
-import edu.espe.springlab.exception.reactive.ReactiveResourceNotFoundException;
 import edu.espe.springlab.exception.reactive.ReactiveValidationException;
 import edu.espe.springlab.validator.reactive.ReactiveHabitacionValidator;
 import org.slf4j.Logger;
