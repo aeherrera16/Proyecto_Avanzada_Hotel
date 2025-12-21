@@ -1,12 +1,12 @@
 package edu.espe.springlab.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.data.relational.core.mapping.Column;
+import jakarta.persistence.*;
 
+@Entity
 @Table(name = "habitacion") // Explicitly define table name
 public class Habitacion {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
