@@ -9,17 +9,17 @@ public class Habitacion {
     @Id
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column("numero")
     private String numero;
 
-    @Column(nullable = false)
-    private String tipo; // Ej: Simple, Doble, Suite
+    @Column("tipo")
+    private String tipo;
 
-    @Column(nullable = false)
+    @Column("precio")
     private Double precio;
 
-    @Column(nullable = false)
-    private String estado; // Ej: Disponible, Ocupada, Mantenimiento
+    @Column("estado")
+    private String estado;
 
     // Constructor por defecto
     public Habitacion() {
