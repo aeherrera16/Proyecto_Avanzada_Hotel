@@ -28,6 +28,19 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	
+	// SpringDoc OpenAPI para documentación (NUEVO)
+	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.2.0'
+	
+	// Spring Security para WebFlux (NUEVO)
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-config'
+	
+	// Micrometer para métricas (NUEVO)
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	
+	// Jackson para JSON (NUEVO)
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
 	// Drivers de bases de datos
 	runtimeOnly 'com.mysql:mysql-connector-j'      // MySQL
@@ -40,6 +53,7 @@ dependencies {
 	// Testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'  // Testing reactivo (NUEVO)
+	testImplementation 'org.springframework.security:spring-security-test'  // Testing seguridad (NUEVO)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.h2database:h2:2.2.220'
 }

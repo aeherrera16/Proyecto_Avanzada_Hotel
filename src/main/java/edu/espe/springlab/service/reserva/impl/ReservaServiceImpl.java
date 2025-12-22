@@ -5,8 +5,6 @@ import edu.espe.springlab.domain.Huesped;
 import edu.espe.springlab.domain.Reserva;
 import edu.espe.springlab.dto.reserva.ReservaRequest;
 import edu.espe.springlab.dto.reserva.ReservaResponse;
-import edu.espe.springlab.dto.huesped.HuespedResponse;
-import edu.espe.springlab.dto.habitacion.HabitacionResponse;
 import edu.espe.springlab.repository.HabitacionRepository;
 import edu.espe.springlab.repository.HuespedRepository;
 import edu.espe.springlab.repository.ReservaRepository;
@@ -91,45 +89,19 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     private ReservaResponse mapToResponse(Reserva reserva) {
-        // Mapear huésped
-        Huesped huesped = reserva.getHuesped();
-        HuespedResponse huespedResponse = new HuespedResponse(
-                huesped.getId(),
-                huesped.getNombre(),
-                huesped.getApellido(),
-                huesped.getCedula(),
-                huesped.getEmail(),
-                huesped.getTelefono(),
-                huesped.getNacionalidad()
+        return new ReservaResponse(
+                reserva.getId(),
+                reserva.getHuesped().getId(),
+                reserva.getHuesped().getNombre() + " " + reserva.getHuesped().getApellido(),
+                reserva.getHabitacion().getId(),
+                reserva.getHabitacion().getNumero(),
+                reserva.getFechaEntrada(),
+                reserva.getFechaSalida(),
+                reserva.getPrecioTotal(),
+                reserva.getEstado(),
+                reserva.getFechaCreacion(),
+                reserva.getFechaActualizacion()
         );
-
-        // Mapear habitación
-        Habitacion habitacion = reserva.getHabitacion();
-        HabitacionResponse habitacionResponse = new HabitacionResponse(
-                habitacion.getId(),
-                habitacion.getNumero(),
-                habitacion.getTipo(),
-                habitacion.getPrecio(),
-                habitacion.getEstado()
-        );
-
-        // Crear respuesta completa
-        ReservaResponse response = new ReservaResponse();
-        response.setId(reserva.getId());
-        response.setHuespedId(huesped.getId());
-        response.setHuespedNombreCompleto(huesped.getNombre() + " " + huesped.getApellido());
-        response.setHuesped(huespedResponse);
-        response.setHabitacionId(habitacion.getId());
-        response.setHabitacionNumero(habitacion.getNumero());
-        response.setHabitacion(habitacionResponse);
-        response.setFechaEntrada(reserva.getFechaEntrada());
-        response.setFechaSalida(reserva.getFechaSalida());
-        response.setPrecioTotal(reserva.getPrecioTotal());
-        response.setEstado(reserva.getEstado());
-        response.setFechaCreacion(reserva.getFechaCreacion());
-        response.setFechaActualizacion(reserva.getFechaActualizacion());
-        
-        return response;
     }
 
     private void mapRequestToEntity(ReservaRequest request, Reserva entity) {

@@ -120,8 +120,8 @@ function Habitaciones() {
               <h3>Habitación {habitacion.numero}</h3>
               <p><strong>Tipo:</strong> {habitacion.tipo}</p>
               <div className="card-price">${habitacion.precio} / noche</div>
-              <span className={`card-badge ${habitacion.estado.toLowerCase()}`}>
-                {habitacion.estado}
+              <span className={`card-badge ${habitacion.estado ? habitacion.estado.toLowerCase() : 'disponible'}`}>
+                {habitacion.estado || 'Disponible'}
               </span>
               <div className="action-buttons">
                 <Link to={`/habitaciones/editar/${habitacion.id}`} className="btn-secondary">

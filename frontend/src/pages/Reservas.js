@@ -269,7 +269,7 @@ function Reservas() {
                     <div className="info-content">
                       <div className="info-label">Huésped</div>
                       <div className="info-value">
-                        {reserva.huesped?.nombre} {reserva.huesped?.apellido}
+                        {reserva.nombreHuesped}
                       </div>
                     </div>
                   </div>
@@ -279,7 +279,7 @@ function Reservas() {
                     <div className="info-content">
                       <div className="info-label">Habitación</div>
                       <div className="info-value">
-                        {reserva.habitacion?.tipo} - #{reserva.habitacion?.numero}
+                        {reserva.tipoHabitacion} - #{reserva.numeroHabitacion}
                       </div>
                     </div>
                   </div>
@@ -302,7 +302,7 @@ function Reservas() {
                     <span className="info-icon">💰</span>
                     <div className="info-content">
                       <div className="info-label">Total</div>
-                      <div className="info-value price">${reserva.precioTotal?.toFixed(2)}</div>
+                      <div className="info-value price">${reserva.precioTotal?.toFixed(2) || reserva.precioTotal?.toFixed(2)}</div>
                     </div>
                   </div>
                 </div>
@@ -361,10 +361,10 @@ function Reservas() {
             <div className="modal-body">
               <div className="detail-section">
                 <h4>Información del Huésped</h4>
-                <p><strong>Nombre:</strong> {reservaSeleccionada.huesped?.nombre} {reservaSeleccionada.huesped?.apellido}</p>
-                <p><strong>Email:</strong> {reservaSeleccionada.huesped?.email}</p>
-                <p><strong>Teléfono:</strong> {reservaSeleccionada.huesped?.telefono}</p>
-                <p><strong>Identificación:</strong> {reservaSeleccionada.huesped?.cedula}</p>
+                <p><strong>Nombre:</strong> {reservaSeleccionada.nombreHuesped}</p>
+                <p><strong>Email:</strong> {reservaSeleccionada.emailHuesped}</p>
+                <p><strong>Teléfono:</strong> {reservaSeleccionada.telefonoHuesped}</p>
+                <p><strong>Identificación:</strong> {reservaSeleccionada.cedulaHuesped}</p>
                 {reservaSeleccionada.huesped?.nacionalidad && (
                   <p><strong>Nacionalidad:</strong> {reservaSeleccionada.huesped?.nacionalidad}</p>
                 )}
@@ -372,9 +372,9 @@ function Reservas() {
 
               <div className="detail-section">
                 <h4>Información de la Habitación</h4>
-                <p><strong>Tipo:</strong> {reservaSeleccionada.habitacion?.tipo}</p>
-                <p><strong>Número:</strong> {reservaSeleccionada.habitacion?.numero}</p>
-                <p><strong>Precio por noche:</strong> ${reservaSeleccionada.habitacion?.precio}</p>
+                <p><strong>Tipo:</strong> {reservaSeleccionada.tipoHabitacion}</p>
+                <p><strong>Número:</strong> {reservaSeleccionada.numeroHabitacion}</p>
+                <p><strong>Precio por noche:</strong> ${reservaSeleccionada.precioHabitacion}</p>
               </div>
 
               <div className="detail-section">

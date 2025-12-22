@@ -11,28 +11,28 @@ public class Reserva {
     @Id
     private Long id;
 
-    @Column(name = "huesped_id", nullable = false)
+    @Column("huesped_id")
     private Long huespedId;
 
-    @Column(name = "habitacion_id", nullable = false)
+    @Column("habitacion_id")
     private Long habitacionId;
 
-    @Column(name = "fecha_entrada", nullable = false)
+    @Column("fecha_entrada")
     private LocalDate fechaEntrada;
 
-    @Column(name = "fecha_salida", nullable = false)
+    @Column("fecha_salida")
     private LocalDate fechaSalida;
 
-    @Column(name = "precio_total", nullable = false)
+    @Column("precio_total")
     private Double precioTotal;
 
-    @Column(name = "estado", nullable = false)
+    @Column("estado")
     private String estado; // Ej: "Confirmada", "Pendiente", "Cancelada"
 
-    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    @Column("fecha_creacion")
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "fecha_actualizacion")
+    @Column("fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
     // Getters y Setters

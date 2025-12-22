@@ -1,44 +1,41 @@
 package edu.espe.springlab.domain;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.relational.core.mapping.Column;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "pagos") // Aquí se define el nombre de la tabla como "pagos"
+@Table(name = "pagos")
 public class Pago {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reserva_id", nullable = false)
-    private Reserva reserva;
+    @Column("reserva_id")
+    private Long reservaId;
 
-    @Column(name = "monto", nullable = false)
+    @Column("monto")
     private Double monto;
 
-    @Column(name = "fecha_pago", nullable = false)
+    @Column("fecha_pago")
     private LocalDateTime fechaPago;
 
-    @Column(name = "metodo_pago", nullable = false)
-    private String metodoPago; // Ej: "Tarjeta de Crédito", "Efectivo", "Transferencia"
+    @Column("metodo_pago")
+    private String metodoPago;
 
-    @Column(name = "estado", nullable = false)
-    private String estado; // Ej: "Completado", "Pendiente", "Reembolsado"
+    @Column("estado")
+    private String estado;
 
-    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    @Column("fecha_creacion")
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "fecha_actualizacion")
+    @Column("fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    @PrePersist
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();
         fechaActualizacion = LocalDateTime.now();
     }
 
-    @PreUpdate
     protected void onUpdate() {
         fechaActualizacion = LocalDateTime.now();
     }
@@ -52,12 +49,12 @@ public class Pago {
         this.id = id;
     }
 
-    public Reserva getReserva() {
-        return reserva;
+    public Long getReservaId() {
+        return reservaId;
     }
 
-    public void setReserva(Reserva reserva) {
-        this.reserva = reserva;
+    public void setReservaId(Long reservaId) {
+        this.reservaId = reservaId;
     }
 
     public Double getMonto() {

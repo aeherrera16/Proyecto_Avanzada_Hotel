@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { habitacionesService, huespedesService, reservasService, pagosService } from '../services/api';
 import PagoSimulador from '../components/PagoSimulador';
@@ -30,6 +30,7 @@ function ReservaFlow() {
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(null);
   const [huespedId, setHuespedId] = useState(null);
   const [reservaId, setReservaId] = useState(null);
+  const [datosHuesped, setDatosHuesped] = useState(null); // Guardar datos validados del huésped
 
   useEffect(() => {
     if (currentStep === 2) {
@@ -67,8 +68,14 @@ function ReservaFlow() {
     setError(null);
 
     try {
-      const response = await huespedesService.create(huespedData);
-      setHuespedId(response.data.id);
+      // NO guardar el huésped aquí - se guardará junto con la reserva completa
+      // Solo validar los datos
+      if (!huespedData.nombre || !huespedData.apellido || !huespedData.cedula || !huespedData.email) {
+        throw new Error('Todos los campos del huésped son obligatorios');
+      }
+      
+      // Guardar datos del huésped en el estado para usarlos después
+      setDatosHuesped(huespedData);
       setCurrentStep(2);
     } catch (err) {
       // Manejo específico para cédula duplicada
@@ -100,39 +107,47 @@ function ReservaFlow() {
     setError(null);
 
     try {
-      // 1. Crear la reserva
-      const reservaPayload = {
-        huespedId: huespedId,
+      // 1. Crear la reserva completa transaccional (huésped + reserva + pago)
+      const reservaCompletaPayload = {
+        // Datos del huésped
+        nombre: datosHuesped.nombre,
+        apellido: datosHuesped.apellido,
+        cedula: datosHuesped.cedula,
+        telefono: datosHuesped.telefono,
+        email: datosHuesped.email,
+        nacionalidad: datosHuesped.nacionalidad,
+        
+        // Datos de la reserva
         habitacionId: reservaData.habitacionId,
         fechaEntrada: reservaData.fechaEntrada,
         fechaSalida: reservaData.fechaSalida,
         precioTotal: reservaData.precioTotal,
-        estado: 'Confirmada'
+        
+        // Datos del pago
+        metodoPago: datosPago.metodoPago
       };
 
-      const reservaResponse = await reservasService.create(reservaPayload);
+      const reservaResponse = await reservasService.createCompleta(reservaCompletaPayload);
       setReservaId(reservaResponse.data.id);
 
-      // 2. Registrar el pago
-      const pagoPayload = {
-        reservaId: reservaResponse.data.id,
-        monto: reservaData.precioTotal,
-        fechaPago: new Date().toISOString(),
-        metodoPago: datosPago.metodoPago,
-        estado: 'Completado'
-      };
-
-      await pagosService.create(pagoPayload);
-
-      // 3. Actualizar estado de la habitación a Ocupada
-      await habitacionesService.update(reservaData.habitacionId, {
-        ...habitacionSeleccionada,
-        estado: 'Ocupada'
-      });
-
+      // La habitación ya se actualiza en el backend
       setCurrentStep(5);
     } catch (err) {
-      setError('Error al procesar la reserva: ' + (err.response?.data?.message || err.message));
+      // Si hay error, guardar como pendiente (sin huésped)
+      try {
+        const pendientePayload = {
+          habitacionId: reservaData.habitacionId,
+          fechaEntrada: reservaData.fechaEntrada,
+          fechaSalida: reservaData.fechaSalida,
+          precioTotal: reservaData.precioTotal,
+          estado: 'Pendiente'
+        };
+        
+        await reservasService.createPendiente(pendientePayload);
+        setError('Reserva guardada como pendiente. Puede completarla más tarde.');
+      } catch (errorPendiente) {
+        setError('Error al procesar la reserva: ' + (err.response?.data?.message || err.message));
+      }
     } finally {
       setLoading(false);
     }

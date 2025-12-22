@@ -1,4 +1,23 @@
 spring:
+  # Permitir overriding de beans para evitar conflictos
+  main:
+    allow-bean-definition-overriding: true
+  
+  # Configuracion para WebFlux
+  webflux:
+    base-path: /api
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      max-age: 3600
+  
+  # Deshabilitar Spring Security autoconfig
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
+  
   # Configuracion del datasource
 
   # OPCION 1: MySQL Local (comentada - descomentar si quieres usar MySQL local)
@@ -15,12 +34,22 @@ spring:
   #      format_sql: true
 
   # OPCION 2: H2 para desarrollo local (ACTIVA)
-  # NOTA: H2 en memoria NO persiste datos al reiniciar
   datasource:
     url: jdbc:h2:mem:hoteldb;DB_CLOSE_DELAY=-1;MODE=MySQL
     driver-class-name: org.h2.Driver
     username: sa
-    password:
+    password: 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
   # Si necesitas persistencia de datos local, descomenta esto y comenta lo de arriba:
   #datasource:
@@ -29,30 +58,18 @@ spring:
   #  username: sa
   #  password:
 
-  sql:
-    init:
-      mode: never
-  jpa:
-
   # CONFIGURACION REACTIVA CON R2DBC (NUEVA)
   r2dbc:
     url: r2dbc:h2:mem:///hoteldb;MODE=MySQL;DB_CLOSE_DELAY=-1
     username: sa
     password:
   
-  # Configuracion para WebFlux
-  webflux:
-    base-path: /api
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-        format_sql: true
-  h2:
-    console:
-      enabled: true
+  # FORZAR CREACIÓN AUTOMÁTICA DE TABLAS R2DBC
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+  
   #Configuracion de Jackson
   jackson:
     serialization:
@@ -63,6 +80,20 @@ spring:
     restart:
       enabled: true
 
+# Configuración de Micrometer para métricas
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
 #Configurar el servidor embebido (Tomcat)
 server:
-  port: 8080
+  port: 8085
