@@ -1,0 +1,71 @@
+package edu.espe.springlab.config;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Configuración de métricas con Micrometer
+ * Proporciona contadores y timers para monitoreo del sistema reactivo
+ */
+@Configuration
+public class MetricsConfig {
+
+    @Bean
+    public Counter habitacionRequestCounter(MeterRegistry meterRegistry) {
+        return Counter.builder("habitacion.requests")
+                .description("Total de solicitudes a endpoints de habitaciones")
+                .tag("service", "habitacion")
+                .register(meterRegistry);
+    }
+
+    @Bean
+    public Counter reservaRequestCounter(MeterRegistry meterRegistry) {
+        return Counter.builder("reserva.requests")
+                .description("Total de solicitudes a endpoints de reservas")
+                .tag("service", "reserva")
+                .register(meterRegistry);
+    }
+
+    @Bean
+    public Counter websocketConnectionCounter(MeterRegistry meterRegistry) {
+        return Counter.builder("websocket.connections")
+                .description("Total de conexiones WebSocket")
+                .tag("service", "websocket")
+                .register(meterRegistry);
+    }
+
+    @Bean
+    public Timer habitacionResponseTimer(MeterRegistry meterRegistry) {
+        return Timer.builder("habitacion.response.time")
+                .description("Tiempo de respuesta de endpoints de habitaciones")
+                .tag("service", "habitacion")
+                .register(meterRegistry);
+    }
+
+    @Bean
+    public Timer reservaResponseTimer(MeterRegistry meterRegistry) {
+        return Timer.builder("reserva.response.time")
+                .description("Tiempo de respuesta de endpoints de reservas")
+                .tag("service", "reserva")
+                .register(meterRegistry);
+    }
+
+    @Bean
+    public Timer databaseQueryTimer(MeterRegistry meterRegistry) {
+        return Timer.builder("database.query.time")
+                .description("Tiempo de ejecución de consultas a base de datos")
+                .tag("service", "database")
+                .register(meterRegistry);
+    }
+
+    @Bean
+    public Counter reactiveErrorCounter(MeterRegistry meterRegistry) {
+        return Counter.builder("reactive.errors")
+                .description("Total de errores en operaciones reactivas")
+                .tag("service", "reactive")
+                .register(meterRegistry);
+    }
+}
