@@ -1,28 +1,31 @@
 package edu.espe.springlab.domain;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.relational.core.mapping.Column;
 
-@Entity
 @Table(name = "huesped")
 public class Huesped {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column("nombre")
     private String nombre;
 
-    @Column(nullable = false)
+    @Column("apellido")
     private String apellido;
 
-    @Column(nullable = false, unique = true)
+    @Column("cedula")
     private String cedula;
 
-    @Column(nullable = false)
+    @Column("telefono")
     private String telefono;
 
-    @Column(nullable = false, unique = true)
+    @Column("email")
     private String email;
+
+    @Column("nacionalidad")
+    private String nacionalidad;
 
     // Constructor por defecto
     public Huesped() {
@@ -75,5 +78,13 @@ public class Huesped {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getNacionalidad() {
+        return nacionalidad;
+    }
+
+    public void setNacionalidad(String nacionalidad) {
+        this.nacionalidad = nacionalidad;
     }
 }

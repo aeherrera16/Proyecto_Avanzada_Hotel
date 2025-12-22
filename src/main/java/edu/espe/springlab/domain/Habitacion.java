@@ -9,16 +9,16 @@ public class Habitacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column("numero")
     private String numero;
 
-    @Column(nullable = false)
+    @Column("tipo")
     private String tipo; // Ej: Simple, Doble, Suite
 
-    @Column(nullable = false)
+    @Column("precio")
     private Double precio;
 
-    @Column(nullable = false)
+    @Column("estado")
     private String estado; // Ej: Disponible, Ocupada, Mantenimiento
 
     // Constructor por defecto

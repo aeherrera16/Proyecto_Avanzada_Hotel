@@ -1,17 +1,96 @@
 spring:
+<<<<<<< HEAD
+  # Permitir overriding de beans para evitar conflictos
+  main:
+    allow-bean-definition-overriding: true
+  
+  # Configuracion para WebFlux
+  webflux:
+    base-path: /api
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      max-age: 3600
+  
+  # Deshabilitar Spring Security autoconfig
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
+  
+  # Configuracion del datasource
+=======
   #Configuracion del datasource
+>>>>>>> fddb7c0f8a7fdd563ececa49201c7e1f80bbb477
+
+  # OPCION 1: MySQL Local (comentada - descomentar si quieres usar MySQL local)
+  #datasource:
+  #  url: jdbc:mysql://localhost:3306/Hoteleria_Espe?useSSL=false&serverTimezone=UTC
+  #  username: root
+  #  password:
+  #jpa:
+  #  hibernate:
+  #    ddl-auto: update
+  #  show-sql: true
+  #  properties:
+  #    hibernate:
+  #      format_sql: true
+
+  # OPCION 2: H2 para desarrollo local (ACTIVA)
   datasource:
-    url: jdbc:mysql://localhost:3306/Hoteleria_Espe?useSSL=false&serverTimezone=UTC
-    username: root
+    url: jdbc:h2:mem:hoteldb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Si necesitas persistencia de datos local, descomenta esto y comenta lo de arriba:
+  #datasource:
+  #  url: jdbc:h2:file:./data/hoteldb;MODE=MySQL;AUTO_SERVER=TRUE
+  #  driver-class-name: org.h2.Driver
+  #  username: sa
+  #  password:
+
+<<<<<<< HEAD
+  # CONFIGURACION REACTIVA CON R2DBC (NUEVA)
+  r2dbc:
+    url: r2dbc:h2:mem:///hoteldb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
     password:
+  
+  # FORZAR CREACIÓN AUTOMÁTICA DE TABLAS R2DBC
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+  
+=======
+  sql:
+    init:
+      mode: never
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
-
+  h2:
+    console:
+      enabled: true
+>>>>>>> fddb7c0f8a7fdd563ececa49201c7e1f80bbb477
   #Configuracion de Jackson
   jackson:
     serialization:
@@ -22,6 +101,20 @@ spring:
     restart:
       enabled: true
 
+# Configuración de Micrometer para métricas
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
 #Configurar el servidor embebido (Tomcat)
 server:
-  port: 8080
+  port: 8085

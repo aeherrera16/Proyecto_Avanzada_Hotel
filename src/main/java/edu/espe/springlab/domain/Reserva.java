@@ -11,6 +11,13 @@ public class Reserva {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+<<<<<<< HEAD
+    @Column("huesped_id")
+    private Long huespedId;
+
+    @Column("habitacion_id")
+    private Long habitacionId;
+=======
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "huesped_id", nullable = false)
     private Huesped huesped;
@@ -18,23 +25,24 @@ public class Reserva {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "habitacion_id", nullable = false)
     private Habitacion habitacion;
+>>>>>>> fddb7c0f8a7fdd563ececa49201c7e1f80bbb477
 
-    @Column(name = "fecha_entrada", nullable = false)
+    @Column("fecha_entrada")
     private LocalDate fechaEntrada;
 
-    @Column(name = "fecha_salida", nullable = false)
+    @Column("fecha_salida")
     private LocalDate fechaSalida;
 
-    @Column(name = "precio_total", nullable = false)
+    @Column("precio_total")
     private Double precioTotal;
 
-    @Column(name = "estado", nullable = false)
+    @Column("estado")
     private String estado; // Ej: "Confirmada", "Pendiente", "Cancelada"
 
-    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    @Column("fecha_creacion")
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "fecha_actualizacion")
+    @Column("fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
     @PrePersist
