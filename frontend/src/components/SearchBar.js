@@ -55,10 +55,13 @@ function SearchBar({
                 error: null
             });
         } catch (err) {
+            // Log más visible para errores sin recuperación
+            eventService.addLog(`━━━ ❌ ERROR SIN RECUPERACIÓN ━━━`, 'error');
             eventService.addLog(`  switchIfEmpty → ID ${searchId} no existe en BD`, 'warn');
-            eventService.addLog(`  Sin onErrorResume configurado`, 'error');
-            eventService.addLog(`  onError: ${err.response?.data?.message || err.message}`, 'error');
-            eventService.addLog(`  → El flujo SE DETUVO`, 'error');
+            eventService.addLog(`  ⚠️ Sin onErrorResume configurado`, 'error');
+            eventService.addLog(`  onError: ${err.response?.data?.message || err.message || 'Error del servidor'}`, 'error');
+            eventService.addLog(`  → El flujo SE DETUVO COMPLETAMENTE`, 'error');
+            eventService.addLog(`━━━ Esto demuestra la importancia de onErrorResume ━━━`, 'error');
 
             onResult && onResult({
                 data: null,
