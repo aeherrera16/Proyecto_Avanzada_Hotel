@@ -16,6 +16,11 @@ export const habitacionesService = {
     create: (data) => api.post('/habitaciones', data),
     update: (id, data) => api.put(`/habitaciones/${id}`, data),
     delete: (id) => api.delete(`/habitaciones/${id}`),
+    // DEMO: Endpoints para demostrar onErrorResume
+    getByIdConRecuperacion: (id) => api.get(`/habitaciones/demo/con-recuperacion/${id}`),
+    getByIdSinRecuperacion: (id) => api.get(`/habitaciones/demo/sin-recuperacion/${id}`),
+    // STREAMING: URL para Server-Sent Events
+    getStreamUrl: () => `${API_BASE_URL}/habitaciones/stream`,
 };
 
 // Servicios de Huéspedes
@@ -25,24 +30,27 @@ export const huespedesService = {
     create: (data) => api.post('/huespedes', data),
     update: (id, data) => api.put(`/huespedes/${id}`, data),
     delete: (id) => api.delete(`/huespedes/${id}`),
+    // DEMO: Endpoints para demostrar onErrorResume
+    getByIdConRecuperacion: (id) => api.get(`/huespedes/demo/con-recuperacion/${id}`),
+    getByIdSinRecuperacion: (id) => api.get(`/huespedes/demo/sin-recuperacion/${id}`),
 };
 
 // Servicios de Reservas
 export const reservasService = {
     getAll: () => api.get('/reservas'),
     getById: (id) => api.get(`/reservas/${id}`),
-    // Obtener una reserva por ID
     getReserva: async (id) => {
         const response = await api.get(`/reservas/${id}/detalles`);
         return response.data;
     },
     create: (data) => api.post('/reservas', data),
-    // Guardar reserva completa transaccional (huésped + reserva + pago)
     createCompleta: (data) => api.post('/reservas/completa', data),
-    // Guardar reserva pendiente
     createPendiente: (data) => api.post('/reservas/pendiente', data),
     update: (id, data) => api.put(`/reservas/${id}`, data),
     delete: (id) => api.delete(`/reservas/${id}`),
+    // DEMO: Endpoints para demostrar onErrorResume
+    getByIdConRecuperacion: (id) => api.get(`/reservas/demo/con-recuperacion/${id}`),
+    getByIdSinRecuperacion: (id) => api.get(`/reservas/demo/sin-recuperacion/${id}`),
 };
 
 // Servicios de Pagos
@@ -55,4 +63,3 @@ export const pagosService = {
 };
 
 export default api;
-

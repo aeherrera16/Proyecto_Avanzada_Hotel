@@ -14,6 +14,7 @@ import Huespedes from './pages/Huespedes';
 import HuespedForm from './pages/HuespedForm';
 import Reservas from './pages/Reservas';
 import ReservaFlow from './pages/ReservaFlow';
+import ActividadReactiva from './pages/ActividadReactiva';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/huespedes/editar/:id" element={<HuespedForm />} />
           <Route path="/reservas" element={<Reservas />} />
           <Route path="/reservas/nueva" element={<ReservaFlow />} />
+          <Route path="/actividad" element={<ActividadReactiva />} />
         </Routes>
         <Footer />
       </div>
@@ -38,3 +40,4 @@ function App() {
 }
 
 export default App;
+
