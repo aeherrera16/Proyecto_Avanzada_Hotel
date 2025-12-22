@@ -1,0 +1,220 @@
+/* Modal de Error - Estilos */
+
+.error-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.error-modal {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(220, 53, 69, 0.1);
+  animation: slideUp 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Header del modal */
+.error-modal-header {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  padding: 24px;
+  text-align: center;
+  color: white;
+}
+
+.error-modal-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.error-modal-icon svg {
+  width: 36px;
+  height: 36px;
+  color: white;
+}
+
+.error-modal-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Cuerpo del modal */
+.error-modal-body {
+  padding: 24px;
+  text-align: center;
+}
+
+.error-modal-message {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.error-modal-details {
+  background: #fff3f3;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.error-modal-details-label {
+  font-size: 0.85rem;
+  color: #c82333;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.error-modal-details-text {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 8px 0 0;
+  font-family: monospace;
+  word-break: break-word;
+}
+
+/* Footer del modal */
+.error-modal-footer {
+  padding: 16px 24px 24px;
+  text-align: center;
+}
+
+.error-modal-btn {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  padding: 14px 48px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.error-modal-btn:hover {
+  background: linear-gradient(135deg, #c82333, #bd2130);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+.error-modal-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* Modal de éxito - variante verde */
+.success-modal .error-modal-header {
+  background: linear-gradient(135deg, #28a745, #218838);
+}
+
+.success-modal .error-modal-btn {
+  background: linear-gradient(135deg, #28a745, #218838);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.success-modal .error-modal-btn:hover {
+  background: linear-gradient(135deg, #218838, #1e7e34);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Modal de advertencia - variante amarilla */
+.warning-modal .error-modal-header {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #333;
+}
+
+.warning-modal .error-modal-icon svg {
+  color: #333;
+}
+
+.warning-modal .error-modal-title {
+  color: #333;
+}
+
+.warning-modal .error-modal-btn {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #333;
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .error-modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .error-modal-header {
+    padding: 20px;
+  }
+  
+  .error-modal-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .error-modal-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .error-modal-title {
+    font-size: 1.25rem;
+  }
+  
+  .error-modal-message {
+    font-size: 1rem;
+  }
+}
