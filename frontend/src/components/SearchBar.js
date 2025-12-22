@@ -1,3 +1,4 @@
+// Importaciones estándar de React y del servicio de eventos
 import React, { useState } from 'react';
 import eventService from '../services/eventService';
 
@@ -5,6 +6,7 @@ import eventService from '../services/eventService';
  * Barra de búsqueda con selector de modo (con/sin recuperación).
  * Publica eventos al servicio para que se vean en Actividad.
  */
+// Componente reutilizable de búsqueda con soporte para dos estrategias reactivas
 function SearchBar({
     entityName,
     searchFunctionConRecuperacion,
@@ -16,6 +18,7 @@ function SearchBar({
     const [searching, setSearching] = useState(false);
     const [mode, setMode] = useState('con'); // 'con' o 'sin'
 
+    // Ejecuta la búsqueda según el modo seleccionado
     const handleSearch = async () => {
         if (!searchId.trim()) return;
 
@@ -27,6 +30,7 @@ function SearchBar({
         eventService.addLog(`Modo: ${mode === 'con' ? 'CON recuperación' : 'SIN recuperación'}`, 'info');
 
         try {
+            // Selecciona dinámicamente la función de búsqueda según el modo
             const searchFn = mode === 'con'
                 ? searchFunctionConRecuperacion
                 : searchFunctionSinRecuperacion;
@@ -37,16 +41,19 @@ function SearchBar({
             const isRecovered = response.data.id === -1;
 
             if (isRecovered) {
+                // Log detallado cuando se usa recuperación (onErrorResume)
                 eventService.addLog(`  switchIfEmpty → ID ${searchId} no existe en BD`, 'warn');
                 eventService.addLog(`  onErrorResume ACTIVADO!`, 'recovered');
                 eventService.addLog(`  → Retornando valor por defecto`, 'recovered');
                 eventService.addLog(`  onNext: ${entityName} recuperado (ID: -1)`, 'data');
                 eventService.addLog(`onComplete: Flujo continuó exitosamente`, 'success');
             } else {
+                // Log cuando se encuentra el recurso normalmente
                 eventService.addLog(`  onNext: ${entityName} encontrado (ID: ${response.data.id})`, 'data');
                 eventService.addLog(`onComplete: Búsqueda exitosa`, 'success');
             }
 
+            // Notifica al componente padre del resultado
             onResult && onResult({
                 data: response.data,
                 found: !isRecovered,
@@ -55,7 +62,7 @@ function SearchBar({
                 error: null
             });
         } catch (err) {
-            // Log más visible para errores sin recuperación
+            // Log detallado del fallo cuando NO hay recuperación
             eventService.addLog(`━━━ ❌ ERROR SIN RECUPERACIÓN ━━━`, 'error');
             eventService.addLog(`  switchIfEmpty → ID ${searchId} no existe en BD`, 'warn');
             eventService.addLog(`  ⚠️ Sin onErrorResume configurado`, 'error');
@@ -63,6 +70,7 @@ function SearchBar({
             eventService.addLog(`  → El flujo SE DETUVO COMPLETAMENTE`, 'error');
             eventService.addLog(`━━━ Esto demuestra la importancia de onErrorResume ━━━`, 'error');
 
+            // Notifica al padre del error
             onResult && onResult({
                 data: null,
                 found: false,
@@ -75,10 +83,12 @@ function SearchBar({
         }
     };
 
+    // Permite ejecutar la búsqueda al presionar Enter
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') handleSearch();
     };
 
+    // Renderizado del componente de búsqueda
     return (
         <div className="search-bar-container">
             <div className="search-bar">
@@ -90,6 +100,7 @@ function SearchBar({
                     placeholder={placeholder}
                     className="search-input"
                 />
+                {/* Selector para cambiar entre modos de recuperación */}
                 <select
                     value={mode}
                     onChange={(e) => setMode(e.target.value)}
@@ -110,4 +121,5 @@ function SearchBar({
     );
 }
 
+// Exportación por defecto del componente
 export default SearchBar;

@@ -1,16 +1,25 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿// Importaciones de React y hooks estándar
+import React, { useState, useEffect } from 'react';
+// Hook para navegación entre rutas
 import { useNavigate } from 'react-router-dom';
+// Servicios API para interactuar con el backend
 import { habitacionesService, huespedesService, reservasService, pagosService } from '../services/api';
+// Componente reutilizable para simular el proceso de pago
 import PagoSimulador from '../components/PagoSimulador';
 
+// Componente principal del flujo de reserva (asistente paso a paso)
 function ReservaFlow() {
   const navigate = useNavigate();
+    // Controla en qué paso del asistente se encuentra el usuario
   const [currentStep, setCurrentStep] = useState(1);
+    // Indicador de carga para operaciones asíncronas
   const [loading, setLoading] = useState(false);
+    // Mensaje de error en caso de fallos
   const [error, setError] = useState(null);
+    // Lista de habitaciones disponibles desde la API
   const [habitacionesDisponibles, setHabitacionesDisponibles] = useState([]);
 
-  // Datos del formulario
+    // Datos del huésped ingresados en el formulario
   const [huespedData, setHuespedData] = useState({
     nombre: '',
     apellido: '',
@@ -20,6 +29,7 @@ function ReservaFlow() {
     nacionalidad: ''
   });
 
+    // Datos de la reserva (fechas, habitación, precio)
   const [reservaData, setReservaData] = useState({
     habitacionId: null,
     fechaEntrada: '',
@@ -27,18 +37,25 @@ function ReservaFlow() {
     precioTotal: 0
   });
 
+    // Habitación seleccionada por el usuario
   const [habitacionSeleccionada, setHabitacionSeleccionada] = useState(null);
+    // ID del huésped (aunque en este flujo no se crea por separado)
   const [huespedId, setHuespedId] = useState(null);
+    // ID de la reserva creada
   const [reservaId, setReservaId] = useState(null);
+    // Copia validada de los datos del huésped
   const [datosHuesped, setDatosHuesped] = useState(null); // Guardar datos validados del huésped
   const [reservaEstado, setReservaEstado] = useState('Confirmada'); // Estado final de la reserva
 
+
+    // Cargar habitaciones disponibles cuando se entra al paso 2
   useEffect(() => {
     if (currentStep === 2) {
       cargarHabitaciones();
     }
   }, [currentStep]);
 
+    // Obtiene habitaciones disponibles del backend
   const cargarHabitaciones = async () => {
     try {
       setLoading(true);
@@ -53,6 +70,7 @@ function ReservaFlow() {
     }
   };
 
+    // Calcula el precio total según fechas y precio por noche
   const calcularPrecioTotal = () => {
     if (!reservaData.fechaEntrada || !reservaData.fechaSalida || !habitacionSeleccionada) {
       return 0;
@@ -63,6 +81,7 @@ function ReservaFlow() {
     return noches * habitacionSeleccionada.precio;
   };
 
+    // Maneja el envío del formulario de huésped (validación y avance)
   const handleHuespedSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -79,7 +98,7 @@ function ReservaFlow() {
       setDatosHuesped(huespedData);
       setCurrentStep(2);
     } catch (err) {
-      // Manejo específico para cédula duplicada
+      // Mensaje específico para cédula duplicada
       if (err.response?.data?.message?.includes('Duplicate entry') ||
         err.message?.includes('Duplicate entry')) {
         setError('⚠️ Ya existe un huésped registrado con esa cédula o email. Por favor, use datos diferentes.');
@@ -91,11 +110,13 @@ function ReservaFlow() {
     }
   };
 
+    // Selecciona una habitación y actualiza el estado
   const handleHabitacionSelect = (habitacion) => {
     setHabitacionSeleccionada(habitacion);
     setReservaData({ ...reservaData, habitacionId: habitacion.id });
   };
 
+    // Valida y avanza al paso de pago tras seleccionar fechas
   const handleFechasSubmit = (e) => {
     e.preventDefault();
     const precioTotal = calcularPrecioTotal();
@@ -103,6 +124,7 @@ function ReservaFlow() {
     setCurrentStep(4);
   };
 
+    // Maneja la finalización del pago y creación transaccional
   const handlePagoCompletado = async (datosPago) => {
     setLoading(true);
     setError(null);
@@ -174,6 +196,7 @@ function ReservaFlow() {
   };
 
 
+    // Devuelve la URL de una imagen según el tipo de habitación
   const getImageByTipo = (tipo) => {
     const images = {
       'Simple': 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -184,6 +207,7 @@ function ReservaFlow() {
     return images[tipo] || images['Simple'];
   };
 
+    // Renderizado principal del componente
   return (
     <div className="container">
       {/* Progress Indicator */}
@@ -210,6 +234,7 @@ function ReservaFlow() {
         </div>
       </div>
 
+        {/* Mostrar error si existe */}
       {error && <div className="error-message">{error}</div>}
 
       {/* Step 1: Datos del Huésped */}
@@ -221,6 +246,7 @@ function ReservaFlow() {
             <p>Por favor, ingrese sus datos personales para continuar</p>
           </div>
 
+            {/* Nota de advertencia para evitar duplicados */}
           <div style={{
             background: '#fff3cd',
             border: '1px solid #ffc107',
@@ -235,6 +261,7 @@ function ReservaFlow() {
           </div>
 
           <form onSubmit={handleHuespedSubmit} className="form-container">
+              {/* Campos del formulario organizados en filas */}
             <div className="form-row">
               <div className="form-group">
                 <label>Nombre *</label>
@@ -358,6 +385,7 @@ function ReservaFlow() {
                 </div>
               )}
 
+                {/* Botones de navegación */}
               <div style={{ textAlign: 'center', marginTop: '30px' }}>
                 <button
                   onClick={() => setCurrentStep(1)}
@@ -388,6 +416,7 @@ function ReservaFlow() {
             <p>Seleccione las fechas de entrada y salida</p>
           </div>
 
+            {/* Resumen de la habitación seleccionada */}
           <div className="reservation-summary">
             <h3>Resumen de Reserva</h3>
             <div className="summary-item">
@@ -400,6 +429,7 @@ function ReservaFlow() {
             </div>
           </div>
 
+            {/* Formulario de fechas */}
           <form onSubmit={handleFechasSubmit} className="form-container" style={{ maxWidth: '600px' }}>
             <div className="form-row">
               <div className="form-group">
@@ -424,6 +454,7 @@ function ReservaFlow() {
               </div>
             </div>
 
+              {/* Cálculo en tiempo real del precio total */}
             {reservaData.fechaEntrada && reservaData.fechaSalida && (
               <div className="price-calculation">
                 <div className="calc-row">
@@ -465,6 +496,7 @@ function ReservaFlow() {
             <p>Complete los datos de su tarjeta para finalizar la reserva</p>
           </div>
 
+            {/* Resumen final antes del pago */}
           <div className="reservation-summary">
             <h3>Resumen Final</h3>
             <div className="summary-item">
@@ -489,6 +521,7 @@ function ReservaFlow() {
             </div>
           </div>
 
+            {/* Componente reutilizable de simulación de pago */}
           <PagoSimulador
             monto={reservaData.precioTotal}
             onPagoCompletado={handlePagoCompletado}
@@ -508,6 +541,7 @@ function ReservaFlow() {
               Su reserva ha sido procesada exitosamente. Recibirá un correo de confirmación en {datosHuesped?.email || huespedData.email}
             </p>
 
+              {/* Detalles de la reserva confirmada */}
             <div className="confirmation-details">
               <h3>Detalles de su Reserva</h3>
               <div className="detail-item">
@@ -550,6 +584,7 @@ function ReservaFlow() {
               </div>
             </div>
 
+              {/* Botones finales de navegación */}
             <div style={{ textAlign: 'center', marginTop: '40px' }}>
               <button onClick={() => navigate('/reservas')} className="btn-primary" style={{ marginRight: '10px' }}>
                 Ver Mis Reservas
@@ -565,4 +600,5 @@ function ReservaFlow() {
   );
 }
 
+// Exportación por defecto del componente
 export default ReservaFlow;
