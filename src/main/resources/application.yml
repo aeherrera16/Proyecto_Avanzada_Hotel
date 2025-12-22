@@ -1,4 +1,5 @@
 spring:
+<<<<<<< HEAD
   # Permitir overriding de beans para evitar conflictos
   main:
     allow-bean-definition-overriding: true
@@ -19,6 +20,9 @@ spring:
       - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
   
   # Configuracion del datasource
+=======
+  #Configuracion del datasource
+>>>>>>> fddb7c0f8a7fdd563ececa49201c7e1f80bbb477
 
   # OPCION 1: MySQL Local (comentada - descomentar si quieres usar MySQL local)
   #datasource:
@@ -58,6 +62,7 @@ spring:
   #  username: sa
   #  password:
 
+<<<<<<< HEAD
   # CONFIGURACION REACTIVA CON R2DBC (NUEVA)
   r2dbc:
     url: r2dbc:h2:mem:///hoteldb;MODE=MySQL;DB_CLOSE_DELAY=-1
@@ -70,6 +75,22 @@ spring:
       mode: always
       schema-locations: classpath:schema.sql
   
+=======
+  sql:
+    init:
+      mode: never
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+>>>>>>> fddb7c0f8a7fdd563ececa49201c7e1f80bbb477
   #Configuracion de Jackson
   jackson:
     serialization:
