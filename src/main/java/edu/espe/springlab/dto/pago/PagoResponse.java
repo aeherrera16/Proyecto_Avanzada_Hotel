@@ -1,22 +1,32 @@
 package edu.espe.springlab.dto.pago;
 
+// Importación de LocalDateTime para manejar fechas y horas
 import java.time.LocalDateTime;
 
+// DTO (Data Transfer Object) para enviar datos de un pago al cliente
 public class PagoResponse {
+    // Identificador único del pago
     private Long id;
+    // ID de la reserva asociada al pago
     private Long reservaId;
+    // Monto del pago
     private Double monto;
+    // Fecha y hora en que se realizó el pago
     private LocalDateTime fechaPago;
+    // Método de pago utilizado (ej. "Tarjeta", "Efectivo")
     private String metodoPago;
+    // Estado actual del pago (ej. "Completado", "Pendiente")
     private String estado;
+    // Fecha y hora de creación del registro
     private LocalDateTime fechaCreacion;
+    // Fecha y hora de la última actualización del registro
     private LocalDateTime fechaActualizacion;
 
-    // Constructor por defecto
+    // Constructor por defecto (requerido para frameworks como Jackson)
     public PagoResponse() {
     }
 
-    // Constructor con todos los campos
+    // Constructor con todos los campos para facilitar la creación de instancias completas
     public PagoResponse(Long id, Long reservaId, Double monto, LocalDateTime fechaPago, String metodoPago, String estado, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
         this.id = id;
         this.reservaId = reservaId;
