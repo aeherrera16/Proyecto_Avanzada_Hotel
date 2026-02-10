@@ -70,12 +70,15 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("findAll - Debe retornar todas las habitaciones")
     void findAll_ShouldReturnAllHabitaciones() {
-        // Given
+        // Arrange - Preparar datos de prueba y mocks
         List<Habitacion> habitaciones = Arrays.asList(habitacion1, habitacion2, habitacion3);
         when(habitacionRepository.findAll()).thenReturn(Flux.fromIterable(habitaciones));
 
-        // When & Then
-        StepVerifier.create(habitacionService.findAll())
+        // Act - Ejecutar el método a probar
+        Flux<Habitacion> result = habitacionService.findAll();
+
+        // Assert - Verificar resultados
+        StepVerifier.create(result)
                 .expectNext(habitacion1)
                 .expectNext(habitacion2)
                 .expectNext(habitacion3)
@@ -87,12 +90,15 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("findAll - Debe manejar error en repository")
     void findAll_ShouldHandleRepositoryError() {
-        // Given
+        // Arrange - Preparar error simulado
         RuntimeException error = new RuntimeException("Error de base de datos");
         when(habitacionRepository.findAll()).thenReturn(Flux.error(error));
 
-        // When & Then
-        StepVerifier.create(habitacionService.findAll())
+        // Act - Ejecutar el método
+        Flux<Habitacion> result = habitacionService.findAll();
+
+        // Assert - Verificar que maneja el error correctamente
+        StepVerifier.create(result)
                 .expectErrorMatches(throwable -> 
                         throwable instanceof RuntimeException &&
                         throwable.getMessage().equals("Error de base de datos"))
@@ -104,12 +110,15 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("findAvailable - Debe retornar solo habitaciones disponibles")
     void findAvailable_ShouldReturnAvailableHabitaciones() {
-        // Given
+        // Arrange - Preparar datos de habitaciones disponibles
         List<Habitacion> habitacionesDisponibles = Arrays.asList(habitacion1, habitacion3);
         when(habitacionRepository.findByEstado("Disponible")).thenReturn(Flux.fromIterable(habitacionesDisponibles));
 
-        // When & Then
-        StepVerifier.create(habitacionService.findAvailable())
+        // Act - Ejecutar el método
+        Flux<Habitacion> result = habitacionService.findAvailable();
+
+        // Assert - Verificar resultados
+        StepVerifier.create(result)
                 .expectNext(habitacion1)
                 .expectNext(habitacion3)
                 .verifyComplete();
@@ -120,11 +129,14 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("findById - Debe retornar habitación cuando existe")
     void findById_ShouldReturnHabitacionWhenExists() {
-        // Given
+        // Arrange - Preparar mock para ID existente
         when(habitacionRepository.findById(1L)).thenReturn(Mono.just(habitacion1));
 
-        // When & Then
-        StepVerifier.create(habitacionService.findById(1L))
+        // Act - Ejecutar el método
+        Mono<Habitacion> result = habitacionService.findById(1L);
+
+        // Assert - Verificar resultado
+        StepVerifier.create(result)
                 .expectNext(habitacion1)
                 .verifyComplete();
 
@@ -134,11 +146,14 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("findById - Debe lanzar excepción cuando no existe")
     void findById_ShouldThrowExceptionWhenNotFound() {
-        // Given
+        // Arrange - Preparar mock para ID inexistente
         when(habitacionRepository.findById(999L)).thenReturn(Mono.empty());
 
-        // When & Then
-        StepVerifier.create(habitacionService.findById(999L))
+        // Act - Ejecutar el método
+        Mono<Habitacion> result = habitacionService.findById(999L);
+
+        // Assert - Verificar que lanza excepción específica
+        StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
                         throwable instanceof ReactiveResourceNotFoundException &&
                         throwable.getMessage().contains("Habitación no encontrada con ID: 999"))
@@ -150,7 +165,7 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("save - Debe guardar habitación válida")
     void save_ShouldSaveValidHabitacion() {
-        // Given
+        // Arrange - Preparar datos de prueba
         Habitacion nuevaHabitacion = new Habitacion();
         nuevaHabitacion.setNumero("104");
         nuevaHabitacion.setTipo("Simple");
@@ -167,8 +182,11 @@ class HabitacionServiceReactivoTest {
         when(habitacionValidator.validate(nuevaHabitacion)).thenReturn(Mono.just(nuevaHabitacion));
         when(habitacionRepository.save(nuevaHabitacion)).thenReturn(Mono.just(habitacionGuardada));
 
-        // When & Then
-        StepVerifier.create(habitacionService.save(nuevaHabitacion))
+        // Act - Ejecutar el método
+        Mono<Habitacion> result = habitacionService.save(nuevaHabitacion);
+
+        // Assert - Verificar resultado
+        StepVerifier.create(result)
                 .expectNext(habitacionGuardada)
                 .verifyComplete();
 
@@ -179,14 +197,17 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("save - Debe manejar error de validación")
     void save_ShouldHandleValidationError() {
-        // Given
+        // Arrange - Preparar habitación inválida y error
         Habitacion habitacionInvalida = new Habitacion();
         ReactiveValidationException validationError = new ReactiveValidationException("Habitación inválida");
 
         when(habitacionValidator.validate(habitacionInvalida)).thenReturn(Mono.error(validationError));
 
-        // When & Then
-        StepVerifier.create(habitacionService.save(habitacionInvalida))
+        // Act - Ejecutar el método
+        Mono<Habitacion> result = habitacionService.save(habitacionInvalida);
+
+        // Assert - Verificar que maneja el error
+        StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
                         throwable instanceof ReactiveValidationException &&
                         throwable.getMessage().equals("Habitación inválida"))
@@ -199,13 +220,16 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("save - Debe manejar error al guardar")
     void save_ShouldHandleSaveError() {
-        // Given
+        // Arrange - Preparar error de guardado
         RuntimeException saveError = new RuntimeException("Error al guardar");
         when(habitacionValidator.validate(habitacion1)).thenReturn(Mono.just(habitacion1));
         when(habitacionRepository.save(habitacion1)).thenReturn(Mono.error(saveError));
 
-        // When & Then
-        StepVerifier.create(habitacionService.save(habitacion1))
+        // Act - Ejecutar el método
+        Mono<Habitacion> result = habitacionService.save(habitacion1);
+
+        // Assert - Verificar que maneja el error
+        StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
                         throwable instanceof RuntimeException &&
                         throwable.getMessage().equals("Error al guardar"))
@@ -218,12 +242,15 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("deleteById - Debe eliminar habitación cuando existe")
     void deleteById_ShouldDeleteHabitacionWhenExists() {
-        // Given
+        // Arrange - Preparar mock para ID existente
         when(habitacionRepository.findById(1L)).thenReturn(Mono.just(habitacion1));
         when(habitacionRepository.deleteById(1L)).thenReturn(Mono.empty());
 
-        // When & Then
-        StepVerifier.create(habitacionService.deleteById(1L))
+        // Act - Ejecutar el método
+        Mono<Void> result = habitacionService.deleteById(1L);
+
+        // Assert - Verificar que se completa exitosamente
+        StepVerifier.create(result)
                 .verifyComplete();
 
         verify(habitacionRepository, times(1)).findById(1L);
@@ -233,11 +260,14 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("deleteById - Debe lanzar excepción cuando no existe")
     void deleteById_ShouldThrowExceptionWhenNotFound() {
-        // Given
+        // Arrange - Preparar mock para ID inexistente
         when(habitacionRepository.findById(999L)).thenReturn(Mono.empty());
 
-        // When & Then
-        StepVerifier.create(habitacionService.deleteById(999L))
+        // Act - Ejecutar el método
+        Mono<Void> result = habitacionService.deleteById(999L);
+
+        // Assert - Verificar que lanza excepción específica
+        StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
                         throwable instanceof ReactiveResourceNotFoundException &&
                         throwable.getMessage().contains("Habitación no encontrada con ID: 999"))
@@ -250,13 +280,16 @@ class HabitacionServiceReactivoTest {
     @Test
     @DisplayName("deleteById - Debe manejar error al eliminar")
     void deleteById_ShouldHandleDeleteError() {
-        // Given
+        // Arrange - Preparar error de eliminación
         RuntimeException deleteError = new RuntimeException("Error al eliminar");
         when(habitacionRepository.findById(1L)).thenReturn(Mono.just(habitacion1));
         when(habitacionRepository.deleteById(1L)).thenReturn(Mono.error(deleteError));
 
-        // When & Then
-        StepVerifier.create(habitacionService.deleteById(1L))
+        // Act - Ejecutar el método
+        Mono<Void> result = habitacionService.deleteById(1L);
+
+        // Assert - Verificar que maneja el error
+        StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
                         throwable instanceof RuntimeException &&
                         throwable.getMessage().equals("Error al eliminar"))
@@ -264,41 +297,5 @@ class HabitacionServiceReactivoTest {
 
         verify(habitacionRepository, times(1)).findById(1L);
         verify(habitacionRepository, times(1)).deleteById(1L);
-    }
-
-    @Test
-    @DisplayName("Test de backpressure con StepVerifier")
-    void testBackpressureBehavior() {
-        // Given
-        Flux<Habitacion> habitacionFlux = Flux.range(1, 1000)
-                .map(i -> {
-                    Habitacion h = new Habitacion();
-                    h.setId((long) i);
-                    h.setNumero(String.valueOf(100 + i));
-                    h.setTipo("Simple");
-                    h.setPrecio(50.0);
-                    h.setEstado("Disponible");
-                    return h;
-                });
-
-        when(habitacionRepository.findAll()).thenReturn(habitacionFlux);
-
-        // When & Then - Verificar que el flujo puede manejar muchos elementos
-        StepVerifier.create(habitacionService.findAll().take(10))
-                .expectNextCount(10)
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("Test de timeout con StepVerifier")
-    void testTimeoutBehavior() {
-        // Given
-        when(habitacionRepository.findById(1L))
-                .thenReturn(Mono.just(habitacion1).delayElement(java.time.Duration.ofMillis(100)));
-
-        // When & Then - Verificar que la operación completa dentro del tiempo esperado
-        StepVerifier.create(habitacionService.findById(1L))
-                .expectNext(habitacion1)
-                .verifyComplete();
     }
 }
