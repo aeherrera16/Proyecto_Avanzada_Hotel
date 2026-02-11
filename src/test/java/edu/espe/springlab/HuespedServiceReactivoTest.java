@@ -96,6 +96,19 @@ class HuespedServiceReactivoTest {
                     .verifyComplete();
         }
 
+        @Test
+        @DisplayName("deleteById - Debe eliminar cuando existe")
+        void testDeleteSuccess() {
+            when(huespedRepository.findById(1L)).thenReturn(Mono.just(huespedBase));
+            when(huespedRepository.deleteById(1L)).thenReturn(Mono.empty());
+
+            StepVerifier.create(huespedService.deleteById(1L))
+                    .verifyComplete();
+
+            verify(huespedRepository).deleteById(1L);
+        }
+
+
 
 
 
