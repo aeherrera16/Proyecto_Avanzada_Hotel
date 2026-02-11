@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8085/api/reactive';
+const isProduction = window.location.hostname !== 'localhost';
+const API_BASE_URL = isProduction
+    ? `${window.location.protocol}//${window.location.host}/api/reactive`
+    : 'http://localhost:8085/api/reactive';
 
 const api = axios.create({
     baseURL: API_BASE_URL,

@@ -20,35 +20,37 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 ex.getMessage(),
                 request.getDescription(false),
-                "NOT_FOUND"
-        );
+                "NOT_FOUND");
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, WebRequest request) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 "Error de validación",
                 request.getDescription(false),
                 "BAD_REQUEST",
-                errors
-        );
+                errors);
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
+        // En Spring Boot 3.2+, las rutas no encontradas lanzan NoResourceFoundException
+        if (ex.getClass().getSimpleName().equals("NoResourceFoundException")) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 ex.getMessage(),
                 request.getDescription(false),
-                "INTERNAL_SERVER_ERROR"
-        );
+                "INTERNAL_SERVER_ERROR");
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -67,7 +69,8 @@ public class GlobalExceptionHandler {
             this.errorCode = errorCode;
         }
 
-        public ErrorDetails(LocalDateTime timestamp, String message, String details, String errorCode, Map<String, String> validationErrors) {
+        public ErrorDetails(LocalDateTime timestamp, String message, String details, String errorCode,
+                Map<String, String> validationErrors) {
             this.timestamp = timestamp;
             this.message = message;
             this.details = details;
@@ -76,10 +79,24 @@ public class GlobalExceptionHandler {
         }
 
         // Getters
-        public LocalDateTime getTimestamp() { return timestamp; }
-        public String getMessage() { return message; }
-        public String getDetails() { return details; }
-        public String getErrorCode() { return errorCode; }
-        public Map<String, String> getValidationErrors() { return validationErrors; }
+        public LocalDateTime getTimestamp() {
+            return timestamp;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public String getDetails() {
+            return details;
+        }
+
+        public String getErrorCode() {
+            return errorCode;
+        }
+
+        public Map<String, String> getValidationErrors() {
+            return validationErrors;
+        }
     }
 }
