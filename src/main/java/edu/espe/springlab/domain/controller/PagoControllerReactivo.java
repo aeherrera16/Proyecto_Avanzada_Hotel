@@ -1,5 +1,6 @@
 package edu.espe.springlab.domain.controller;
 
+// Importaciones del dominio, servicio y anotaciones de Swagger, Spring y Reactor
 import edu.espe.springlab.domain.Pago;
 import edu.espe.springlab.service.reactive.PagoServiceReactivo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,20 +16,28 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+// Controlador REST para operaciones reactivas sobre pagos
 @RestController
+// Define la ruta base para todos los endpoints de este controlador
 @RequestMapping("/api/reactive/pagos")
+// Permite solicitudes CORS desde cualquier origen y método (útil en desarrollo)
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
+// Etiqueta para agrupar en la documentación de Swagger
 @Tag(name = "Pagos Reactivos", description = "API reactiva para gestión de pagos")
 public class PagoControllerReactivo {
-    
+
+    // Logger para registrar eventos del controlador
     private static final Logger log = LoggerFactory.getLogger(PagoControllerReactivo.class);
-    
+
+    // Servicio reactivo inyectado para la lógica de negocio
     private final PagoServiceReactivo pagoService;
-    
+
+    // Constructor para inyección de dependencias
     public PagoControllerReactivo(PagoServiceReactivo pagoService) {
         this.pagoService = pagoService;
     }
-    
+
+    // Endpoint GET: lista todos los pagos
     @GetMapping
     @Operation(summary = "Obtener todos los pagos", description = "Retorna todos los pagos de forma reactiva")
     @ApiResponses(value = {
@@ -39,7 +48,8 @@ public class PagoControllerReactivo {
         log.info("Solicitud GET a /api/reactive/pagos");
         return pagoService.findAll();
     }
-    
+
+    // Endpoint GET: obtiene un pago por ID
     @GetMapping("/{id}")
     @Operation(summary = "Obtener pago por ID", description = "Retorna un pago específico por su ID")
     @ApiResponses(value = {
@@ -55,7 +65,8 @@ public class PagoControllerReactivo {
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
-    
+
+    // Endpoint POST: crea un nuevo pago
     @PostMapping
     @Operation(summary = "Crear pago", description = "Crea un nuevo pago")
     @ApiResponses(value = {
@@ -68,7 +79,8 @@ public class PagoControllerReactivo {
         return pagoService.save(pago)
                 .map(savedPago -> ResponseEntity.status(HttpStatus.CREATED).body(savedPago));
     }
-    
+
+    // Endpoint PUT: actualiza un pago existente
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar pago", description = "Actualiza un pago existente")
     @ApiResponses(value = {
@@ -86,7 +98,8 @@ public class PagoControllerReactivo {
                 .map(ResponseEntity::ok)
                 .onErrorReturn(ResponseEntity.notFound().build());
     }
-    
+
+    // Endpoint DELETE: elimina un pago por ID
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar pago", description = "Elimina un pago por su ID")
     @ApiResponses(value = {

@@ -1,23 +1,38 @@
 package edu.espe.springlab.dto.reserva;
 
+// Importaciones de otros DTOs relacionados y clases de fecha/hora
 import edu.espe.springlab.dto.huesped.HuespedResponse;
 import edu.espe.springlab.dto.habitacion.HabitacionResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+// DTO (Data Transfer Object) para enviar datos completos de una reserva al cliente
 public class ReservaResponse {
+    // Identificador único de la reserva
     private Long id;
+    // ID del huésped asociado
     private Long huespedId;
+    // Nombre completo del huésped (para visualización rápida)
     private String huespedNombreCompleto; // Para mostrar el nombre del huésped
-    private HuespedResponse huesped; // Objeto completo del huésped
+    // Objeto completo del huésped
+    private HuespedResponse huesped;
+    // ID de la habitación reservada
     private Long habitacionId;
-    private String habitacionNumero; // Para mostrar el número de habitación
-    private HabitacionResponse habitacion; // Objeto completo de la habitación
+    // Para mostrar el número de habitación
+    private String habitacionNumero;
+    // Objeto completo de la habitación
+    private HabitacionResponse habitacion;
+    // Fecha de entrada del huésped
     private LocalDate fechaEntrada;
+    // Fecha de salida del huésped
     private LocalDate fechaSalida;
+    // Precio total de la estadía
     private Double precioTotal;
+    // Estado actual de la reserva (ej. "Confirmada", "Cancelada")
     private String estado;
+    // Fecha y hora de creación del registro
     private LocalDateTime fechaCreacion;
+    // Fecha y hora de la última actualización del registro
     private LocalDateTime fechaActualizacion;
 
     // Constructor por defecto
