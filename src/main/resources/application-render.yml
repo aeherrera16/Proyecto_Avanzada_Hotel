@@ -9,6 +9,11 @@ spring:
     username: sa
     password:
 
+  r2dbc:
+    url: r2dbc:h2:mem:///hoteldb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
 
   #Configuracion de JPA/Hibernate
   jpa:

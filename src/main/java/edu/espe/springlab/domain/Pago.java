@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class Pago {
     // Identificador único del pago (clave primaria)
     @Id
+    @Column("id")
     private Long id;
 
     // Relación con la reserva (almacenado en la columna "reserva_id")
@@ -41,13 +42,15 @@ public class Pago {
     @Column("fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    // Método llamado automáticamente al crear un nuevo pago (puede usarse con listeners)
+    // Método llamado automáticamente al crear un nuevo pago (puede usarse con
+    // listeners)
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();
         fechaActualizacion = LocalDateTime.now();
     }
 
-    // Método llamado automáticamente al actualizar el pago (puede usarse con listeners)
+    // Método llamado automáticamente al actualizar el pago (puede usarse con
+    // listeners)
     protected void onUpdate() {
         fechaActualizacion = LocalDateTime.now();
     }

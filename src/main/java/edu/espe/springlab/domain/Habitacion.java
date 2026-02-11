@@ -7,6 +7,7 @@ import org.springframework.data.relational.core.mapping.Column;
 @Table(name = "habitacion") // Explicitly define table name
 public class Habitacion {
     @Id
+    @Column("id")
     private Long id;
 
     @Column("numero")

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "reservas")
 public class Reserva {
     @Id
+    @Column("id")
     private Long id;
 
     @Column("huesped_id")
