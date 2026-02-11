@@ -1,4 +1,4 @@
-package edu.espe.springlab.controller;
+package edu.espe.springlab.domain.controller;
 
 // Importaciones del dominio, servicio y anotaciones de Swagger, Spring y Reactor
 import edu.espe.springlab.domain.Pago;
