@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - feature/**
   pull_request:
     branches:
       - main
+      - feature/**
 
 jobs:
   build:
@@ -29,7 +31,7 @@ jobs:
         run: ./gradlew clean build
 
       - name: Run tests
-        run: ./gradlew test --info
+        run: ./gradlew test
 
 
 

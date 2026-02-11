@@ -1,43 +1,31 @@
-package edu.espe.springlab.domain;
+package edu.espe.springlab.dto.pago;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.data.relational.core.mapping.Column;
 import java.time.LocalDateTime;
 
-@Table(name = "pagos")
-public class Pago {
-    @Id
+public class PagoResponse {
     private Long id;
-
-    @Column("reserva_id")
     private Long reservaId;
-
-    @Column("monto")
     private Double monto;
-
-    @Column("fecha_pago")
     private LocalDateTime fechaPago;
-
-    @Column("metodo_pago")
     private String metodoPago;
-
-    @Column("estado")
     private String estado;
-
-    @Column("fecha_creacion")
     private LocalDateTime fechaCreacion;
-
-    @Column("fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    protected void onCreate() {
-        fechaCreacion = LocalDateTime.now();
-        fechaActualizacion = LocalDateTime.now();
+    // Constructor por defecto
+    public PagoResponse() {
     }
 
-    protected void onUpdate() {
-        fechaActualizacion = LocalDateTime.now();
+    // Constructor con todos los campos
+    public PagoResponse(Long id, Long reservaId, Double monto, LocalDateTime fechaPago, String metodoPago, String estado, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
+        this.id = id;
+        this.reservaId = reservaId;
+        this.monto = monto;
+        this.fechaPago = fechaPago;
+        this.metodoPago = metodoPago;
+        this.estado = estado;
+        this.fechaCreacion = fechaCreacion;
+        this.fechaActualizacion = fechaActualizacion;
     }
 
     // Getters y Setters

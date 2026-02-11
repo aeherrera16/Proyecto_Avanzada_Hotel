@@ -3,6 +3,8 @@ import { reservasService, habitacionesService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import Notification from '../components/Notification';
 import ConfirmDialog from '../components/ConfirmDialog';
+import SearchBar from '../components/SearchBar';
+import '../styles/SearchBar.css';
 
 function Reservas() {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ function Reservas() {
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, reservaId: null, habitacionId: null });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, reservaId: null, habitacionId: null });
+  const [searchResult, setSearchResult] = useState(null);
 
   useEffect(() => {
     fetchReservas();
@@ -24,8 +27,7 @@ function Reservas() {
     try {
       setLoading(true);
       const response = await reservasService.getAll();
-      // Ordenar por fecha de creación, más recientes primero
-      const ordenadas = response.data.sort((a, b) => 
+      const ordenadas = response.data.sort((a, b) =>
         new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
       );
       setReservas(ordenadas);
@@ -45,6 +47,10 @@ function Reservas() {
     }, 5000);
   };
 
+  const handleSearchResult = (result) => {
+    setSearchResult(result);
+  };
+
   const handleCancelarReservaClick = (reservaId, habitacionId) => {
     setConfirmDialog({ isOpen: true, reservaId, habitacionId });
   };
@@ -54,14 +60,12 @@ function Reservas() {
     setConfirmDialog({ isOpen: false, reservaId: null, habitacionId: null });
 
     try {
-      // Actualizar estado de la reserva
       const reserva = reservas.find(r => r.id === reservaId);
       await reservasService.update(reservaId, {
         ...reserva,
         estado: 'Cancelada'
       });
 
-      // Liberar la habitación
       const habitacionResponse = await habitacionesService.getById(habitacionId);
       await habitacionesService.update(habitacionId, {
         ...habitacionResponse.data,
@@ -106,7 +110,6 @@ function Reservas() {
     setDeleteDialog({ isOpen: false, reservaId: null, habitacionId: null });
 
     try {
-      // Liberar la habitación antes de eliminar la reserva
       if (habitacionId) {
         try {
           const habitacionResponse = await habitacionesService.getById(habitacionId);
@@ -119,7 +122,6 @@ function Reservas() {
         }
       }
 
-      // Eliminar la reserva
       await reservasService.delete(reservaId);
       showNotification('Reserva eliminada exitosamente', 'success');
       fetchReservas();
@@ -165,8 +167,15 @@ function Reservas() {
     return Math.ceil((salida - entrada) / (1000 * 60 * 60 * 24));
   };
 
-  const reservasFiltradas = filtroEstado === 'Todas' 
-    ? reservas 
+  const getResultClass = () => {
+    if (!searchResult) return '';
+    if (searchResult.error) return 'error';
+    if (searchResult.recovered) return 'recovered';
+    return 'found';
+  };
+
+  const reservasFiltradas = filtroEstado === 'Todas'
+    ? reservas
     : reservas.filter(r => r.estado === filtroEstado);
 
   if (loading) {
@@ -188,7 +197,7 @@ function Reservas() {
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
         title="Confirmar cancelación"
-        message="¿Está seguro de que desea cancelar esta reserva? La habitación será liberada pero la reserva permanecerá en el sistema con estado 'Cancelada'."
+        message="¿Está seguro de que desea cancelar esta reserva?"
         onConfirm={handleCancelarReservaConfirm}
         onCancel={handleCancelarReservaCancel}
       />
@@ -196,7 +205,7 @@ function Reservas() {
       <ConfirmDialog
         isOpen={deleteDialog.isOpen}
         title="Confirmar eliminación"
-        message="¿Está seguro de que desea ELIMINAR esta reserva? Esta acción es PERMANENTE y no se puede deshacer. La reserva será eliminada completamente del sistema."
+        message="¿Está seguro de que desea ELIMINAR esta reserva? Esta acción es permanente."
         onConfirm={handleEliminarReservaConfirm}
         onCancel={handleEliminarReservaCancel}
       />
@@ -206,6 +215,58 @@ function Reservas() {
         <div className="divider"></div>
         <p>Administre y supervise todas las reservas del hotel</p>
       </div>
+
+      {/* Barra de búsqueda */}
+      <SearchBar
+        entityName="Reserva"
+        searchFunctionConRecuperacion={reservasService.getByIdConRecuperacion}
+        searchFunctionSinRecuperacion={reservasService.getByIdSinRecuperacion}
+        onResult={handleSearchResult}
+        placeholder="Buscar reserva por ID..."
+      />
+
+      {/* Resultado de búsqueda */}
+      {searchResult && (
+        <div className={`search-result ${getResultClass()}`}>
+          <div className="search-result-header">
+            <span className="search-result-badge">
+              {searchResult.error ? 'Error' : searchResult.recovered ? 'Recuperado' : 'Encontrado'}
+            </span>
+            <span style={{ color: '#888', fontSize: '0.85rem' }}>
+              Modo: {searchResult.mode === 'con' ? 'Con Recuperación' : 'Sin Recuperación'}
+            </span>
+          </div>
+
+          {searchResult.found && (
+            <>
+              <h4>Reserva #{searchResult.data.id}</h4>
+              <p>Estado: {searchResult.data.estado} — Total: ${searchResult.data.precioTotal}</p>
+            </>
+          )}
+
+          {searchResult.recovered && (
+            <>
+              <h4>Reserva no encontrada</h4>
+              <p>No existe una reserva con ese ID en la base de datos.</p>
+              <div className="recovered-message">
+                <strong>onErrorResume activo:</strong> El flujo continuó y retornó un valor por defecto en lugar de fallar.
+              </div>
+            </>
+          )}
+
+          {searchResult.error && (
+            <>
+              <h4>Error en la búsqueda</h4>
+              <div className="error-message-box">
+                <strong>Sin recuperación:</strong> {searchResult.error}
+              </div>
+            </>
+          )}
+
+          <button className="close-btn" onClick={() => setSearchResult(null)}>Cerrar</button>
+        </div>
+      )}
+
 
       {error && <div className="error-message">{error}</div>}
 
@@ -289,7 +350,7 @@ function Reservas() {
                     <div className="info-content">
                       <div className="info-label">Estadía</div>
                       <div className="info-value">
-                        {new Date(reserva.fechaEntrada).toLocaleDateString('es-ES')} - 
+                        {new Date(reserva.fechaEntrada).toLocaleDateString('es-ES')} -
                         {new Date(reserva.fechaSalida).toLocaleDateString('es-ES')}
                         <span className="noches-badge">
                           {calcularNoches(reserva.fechaEntrada, reserva.fechaSalida)} noches
@@ -311,18 +372,18 @@ function Reservas() {
                   <button onClick={() => verDetalles(reserva)} className="btn-details">
                     Ver Detalles
                   </button>
-                  
+
                   {reserva.estado === 'Pendiente' && (
-                    <button 
-                      onClick={() => handleConfirmarReserva(reserva.id)} 
+                    <button
+                      onClick={() => handleConfirmarReserva(reserva.id)}
                       className="btn-confirm"
                     >
                       Confirmar
                     </button>
                   )}
-                  
+
                   {(reserva.estado === 'Confirmada' || reserva.estado === 'Pendiente') && (
-                    <button 
+                    <button
                       onClick={() => handleCancelarReservaClick(reserva.id, reserva.habitacion?.id)}
                       className="btn-cancel"
                     >
@@ -357,7 +418,7 @@ function Reservas() {
               <h3>Detalles de Reserva #{reservaSeleccionada.id}</h3>
               <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
             </div>
-            
+
             <div className="modal-body">
               <div className="detail-section">
                 <h4>Información del Huésped</h4>
@@ -379,11 +440,11 @@ function Reservas() {
 
               <div className="detail-section">
                 <h4>Detalles de la Reserva</h4>
-                <p><strong>Check-in:</strong> {new Date(reservaSeleccionada.fechaEntrada).toLocaleDateString('es-ES', { 
-                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                <p><strong>Check-in:</strong> {new Date(reservaSeleccionada.fechaEntrada).toLocaleDateString('es-ES', {
+                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
                 })}</p>
-                <p><strong>Check-out:</strong> {new Date(reservaSeleccionada.fechaSalida).toLocaleDateString('es-ES', { 
-                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                <p><strong>Check-out:</strong> {new Date(reservaSeleccionada.fechaSalida).toLocaleDateString('es-ES', {
+                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
                 })}</p>
                 <p><strong>Número de noches:</strong> {calcularNoches(reservaSeleccionada.fechaEntrada, reservaSeleccionada.fechaSalida)}</p>
                 <p><strong>Total:</strong> <span style={{ fontSize: '1.2rem', color: '#d4af37' }}>${reservaSeleccionada.precioTotal?.toFixed(2)}</span></p>
@@ -400,7 +461,7 @@ function Reservas() {
                 )}
               </div>
             </div>
-            
+
             <div className="modal-footer">
               <button onClick={() => setShowModal(false)} className="btn-primary">
                 Cerrar

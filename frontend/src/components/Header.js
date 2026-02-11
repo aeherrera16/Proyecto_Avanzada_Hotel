@@ -18,6 +18,7 @@ function Header() {
             <li><Link to="/habitaciones">Habitaciones</Link></li>
             <li><Link to="/reservas">Reservas</Link></li>
             <li><Link to="/huespedes">Huéspedes</Link></li>
+            <li><Link to="/actividad">Actividad</Link></li>
           </ul>
         </nav>
       </div>
