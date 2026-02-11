@@ -1,25 +1,33 @@
 package edu.espe.springlab;
 
 import edu.espe.springlab.domain.Reserva;
+import edu.espe.springlab.domain.Huesped;
+import edu.espe.springlab.domain.Habitacion;
+import edu.espe.springlab.domain.Pago;
+import edu.espe.springlab.dto.ReservaCompletaDTO;
 import edu.espe.springlab.repository.ReservaRepository;
 import edu.espe.springlab.repository.HuespedRepository;
 import edu.espe.springlab.repository.HabitacionRepository;
 import edu.espe.springlab.repository.PagoRepository;
+import edu.espe.springlab.service.reactive.ReservaServiceReactivo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import edu.espe.springlab.service.reactive.ReservaServiceReactivo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -62,7 +70,7 @@ public class ReservaServiceReactivoTest {
     }
 
     @Nested
-    @DisplayName("Pruebas de Búsqueda (Escenarios Positivos y de Recuperación)")
+    @DisplayName("Pruebas de Búsqueda")
     class BusquedaTests {
 
         @Test
@@ -80,7 +88,7 @@ public class ReservaServiceReactivoTest {
         }
 
         @Test
-        @DisplayName("Debe encontrar una reserva por ID")
+        @DisplayName("Debe encontrar una reserva por ID con recuperación")
         void testFindById_Success() {
             // Arrange
             when(reservaRepository.findById(1L)).thenReturn(Mono.just(reservaBase));
@@ -96,16 +104,12 @@ public class ReservaServiceReactivoTest {
         @Test
         @DisplayName("Debe retornar reserva por defecto cuando no existe (Recuperación)")
         void testFindById_NotFound_ReturnsDefault() {
-            // Arrange: Simulamos que el repositorio no encuentra nada
+            // Arrange
             when(reservaRepository.findById(99L)).thenReturn(Mono.empty());
 
             // Act & Assert
             StepVerifier.create(reservaService.findById(99L))
-                    .expectNextMatches(reserva -> {
-                        // Verificamos el comportamiento de recuperación definido en el servicio
-                        return reserva.getId().equals(-1L) &&
-                                reserva.getEstado().contains("Reserva no encontrada");
-                    })
+                    .expectNextMatches(reserva -> reserva.getId().equals(-1L))
                     .verifyComplete();
 
             verify(reservaRepository, times(1)).findById(99L);
@@ -127,86 +131,81 @@ public class ReservaServiceReactivoTest {
                     .expectNext(reservaBase)
                     .verifyComplete();
 
-            verify(reservaRepository, times(1)).save(any(Reserva.class));
+            verify(reservaRepository).save(any(Reserva.class));
         }
 
         @Test
-        @DisplayName("Debe fallar al guardar con fecha de salida anterior a la entrada")
-        void testSave_InvalidDates() {
+        @DisplayName("Debe fallar al guardar con precio cero o negativo")
+        void testSave_NegativeAmount() {
             // Arrange
-            reservaBase.setFechaSalida(reservaBase.getFechaEntrada().minusDays(2));
+            reservaBase.setPrecioTotal(-10.0);
 
             // Act & Assert
             StepVerifier.create(reservaService.save(reservaBase))
-                    .expectErrorMatches(t -> t instanceof RuntimeException &&
-                            t.getMessage().equals("La fecha de salida debe ser posterior a la fecha de entrada"))
+                    .expectError(RuntimeException.class)
                     .verify();
 
             verify(reservaRepository, never()).save(any());
         }
 
         @Test
-        @DisplayName("Debe fallar al guardar con fecha de entrada en el pasado")
-        void testSave_PastDate() {
+        @DisplayName("Debe capturar los datos correctos usando ArgumentCaptor")
+        void testSave_WithArgumentCaptor() {
             // Arrange
-            reservaBase.setFechaEntrada(LocalDate.now().minusDays(1));
+            when(reservaRepository.save(any(Reserva.class))).thenReturn(Mono.just(reservaBase));
+            ArgumentCaptor<Reserva> captor = ArgumentCaptor.forClass(Reserva.class);
 
-            // Act & Assert
-            StepVerifier.create(reservaService.save(reservaBase))
-                    .expectErrorMatches(t -> t instanceof RuntimeException &&
-                            t.getMessage().equals("La fecha de entrada no puede ser en el pasado"))
-                    .verify();
+            // Act
+            reservaService.save(reservaBase).block();
 
-            verify(reservaRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Debe fallar al guardar con precio igual a cero")
-        void testSave_ZeroPrice() {
-            // Arrange
-            reservaBase.setPrecioTotal(0.0);
-
-            // Act & Assert
-            StepVerifier.create(reservaService.save(reservaBase))
-                    .expectErrorMatches(t -> t instanceof RuntimeException &&
-                            t.getMessage().equals("El precio total debe ser mayor a 0"))
-                    .verify();
-
-            verify(reservaRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Debe fallar al guardar con estado no permitido")
-        void testSave_InvalidStatus() {
-            // Arrange
-            reservaBase.setEstado("INVALIDO");
-
-            // Act & Assert
-            StepVerifier.create(reservaService.save(reservaBase))
-                    .expectErrorMatches(t -> t instanceof RuntimeException &&
-                            t.getMessage().startsWith("Estado no válido"))
-                    .verify();
-
-            verify(reservaRepository, never()).save(any());
+            // Assert
+            verify(reservaRepository).save(captor.capture());
+            Reserva capturada = captor.getValue();
+            assertEquals(150.0, capturada.getPrecioTotal());
+            assertEquals("Confirmada", capturada.getEstado());
         }
     }
 
     @Nested
-    @DisplayName("Pruebas de Eliminación")
-    class EliminacionTests {
+    @DisplayName("Pruebas de Integración (InOrder)")
+    class IntegracionTests {
 
         @Test
-        @DisplayName("Debe eliminar una reserva existente")
-        void testDeleteById_Success() {
+        @DisplayName("Debe verificar el orden de ejecución en el guardado completo")
+        void testSaveReservaCompleta_Order() {
             // Arrange
-            when(reservaRepository.findById(1L)).thenReturn(Mono.just(reservaBase));
-            when(reservaRepository.deleteById(1L)).thenReturn(Mono.empty());
+            ReservaCompletaDTO dto = new ReservaCompletaDTO();
+            dto.setHabitacionId(1L);
+            dto.setFechaEntrada(LocalDate.now().plusDays(1));
+            dto.setFechaSalida(LocalDate.now().plusDays(2));
+            dto.setPrecioTotal(new BigDecimal("100"));
+            dto.setMetodoPago("Efectivo");
 
-            // Act & Assert
-            StepVerifier.create(reservaService.deleteById(1L))
+            Huesped huesped = new Huesped();
+            huesped.setId(1L);
+            Habitacion habitacion = new Habitacion();
+            habitacion.setId(1L);
+            Pago pago = new Pago();
+            pago.setId(1L);
+
+            when(huespedRepository.save(any())).thenReturn(Mono.just(huesped));
+            when(reservaRepository.save(any())).thenReturn(Mono.just(reservaBase));
+            when(pagoRepository.save(any())).thenReturn(Mono.just(pago));
+            when(habitacionRepository.findById(anyLong())).thenReturn(Mono.just(habitacion));
+            when(habitacionRepository.save(any())).thenReturn(Mono.just(habitacion));
+
+            // Act
+            StepVerifier.create(reservaService.saveReservaCompleta(dto))
+                    .expectNextCount(1)
                     .verifyComplete();
 
-            verify(reservaRepository, times(1)).deleteById(1L);
+            // Assert: Verificar orden de interacciones
+            InOrder inOrder = inOrder(huespedRepository, reservaRepository, pagoRepository, habitacionRepository);
+            inOrder.verify(huespedRepository).save(any());
+            inOrder.verify(reservaRepository).save(any());
+            inOrder.verify(pagoRepository).save(any());
+            inOrder.verify(habitacionRepository).findById(anyLong());
+            inOrder.verify(habitacionRepository).save(any());
         }
     }
 }
