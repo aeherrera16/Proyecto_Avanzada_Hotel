@@ -1,4 +1,4 @@
-package edu.espe.springlab.controller;
+package edu.espe.springlab.domain.controller;
 
 import edu.espe.springlab.domain.Pago;
 import edu.espe.springlab.service.reactive.PagoServiceReactivo;
