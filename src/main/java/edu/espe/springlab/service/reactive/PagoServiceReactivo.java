@@ -72,6 +72,11 @@ public class PagoServiceReactivo {
     public Mono<Pago> save(Pago pago) {
         log.info("Guardando pago: {}", pago.getMonto());
 
+        //CAMBIO 1: Validar montos negativos y cero
+        if (pago.getMonto() != null && pago.getMonto() <= 0) {
+            return Mono.error(new RuntimeException("El monto debe ser mayor a cero"));
+        }
+
         // Asigna valores por defecto si no están presentes
         if (pago.getReservaId() == null) {
             pago.setReservaId(1L); // Valor por defecto para demostración
@@ -93,6 +98,12 @@ public class PagoServiceReactivo {
     // Actualiza un pago existente; falla si no existe
     public Mono<Pago> update(Long id, Pago pago) {
         log.info("Actualizando pago con ID: {}", id);
+
+        //CAMBIO 2: Validar montos negativos y cero en actualización
+        if (pago.getMonto() != null && pago.getMonto() <= 0) {
+            return Mono.error(new RuntimeException("El monto debe ser mayor a cero"));
+        }
+
         return pagoRepository.findById(id)
                 .switchIfEmpty(Mono.error(new RuntimeException("Pago no encontrado con ID: " + id))) // Manejo explícito de "no encontrado"
                 .flatMap(existingPago -> {
