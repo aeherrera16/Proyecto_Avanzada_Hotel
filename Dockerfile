@@ -6,7 +6,7 @@ RUN npm install
 COPY frontend/ ./
 RUN npm run build
 
-# Etapa 2: Build Backend (Java)
+# Etapa 2: Build Backend
 FROM gradle:8.4-jdk17 AS builder
 WORKDIR /app
 COPY . .
