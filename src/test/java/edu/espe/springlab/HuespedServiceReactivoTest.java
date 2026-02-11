@@ -74,6 +74,18 @@ class HuespedServiceReactivoTest {
                     .verifyComplete();
         }
 
+        @Test
+        @DisplayName("findById - Debe retornar huésped default cuando no existe")
+        void testFindByIdNotFound() {
+            when(huespedRepository.findById(99L))
+                    .thenReturn(Mono.empty());
+
+            StepVerifier.create(huespedService.findById(99L))
+                    .expectNextMatches(h -> h.getId().equals(-1L))
+                    .verifyComplete();
+        }
+
+
 
     }
 
