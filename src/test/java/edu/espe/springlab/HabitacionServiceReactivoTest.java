@@ -27,7 +27,8 @@ import static org.mockito.Mockito.*;
  * Pruebas unitarias para HabitacionServiceReactivo usando StepVerifier
  * Verifica el comportamiento reactivo de los servicios de habitaciones
  * Última actualización: Verificación CI/CD
- * Modificacion de prueba
+ * Modificacion de pruebas para que coincidan con el comportamiento de
+ * recuperación (onErrorResume)
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Pruebas de HabitacionServiceReactivo")
