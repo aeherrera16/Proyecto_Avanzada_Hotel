@@ -1,10 +1,11 @@
-package edu.espe.springlab.service.reactive;
+package edu.espe.springlab;
 
 import edu.espe.springlab.domain.Habitacion;
 import edu.espe.springlab.exception.reactive.ReactiveResourceNotFoundException;
 import edu.espe.springlab.exception.reactive.ReactiveValidationException;
 import edu.espe.springlab.repository.HabitacionRepository;
 import edu.espe.springlab.validator.reactive.ReactiveHabitacionValidator;
+import edu.espe.springlab.service.reactive.HabitacionServiceReactivo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
