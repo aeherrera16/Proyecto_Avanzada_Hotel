@@ -63,5 +63,18 @@ class HuespedServiceReactivoTest {
             verify(huespedRepository, times(1)).findAll();
         }
 
+        @Test
+        @DisplayName("findById - Debe encontrar huésped existente")
+        void testFindByIdSuccess() {
+            when(huespedRepository.findById(1L))
+                    .thenReturn(Mono.just(huespedBase));
+
+            StepVerifier.create(huespedService.findById(1L))
+                    .expectNext(huespedBase)
+                    .verifyComplete();
+        }
+
+
     }
+
 }
