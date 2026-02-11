@@ -85,6 +85,18 @@ class HuespedServiceReactivoTest {
                     .verifyComplete();
         }
 
+        @Test
+        @DisplayName("save - Debe guardar huésped correctamente")
+        void testSaveSuccess() {
+            when(huespedRepository.save(any()))
+                    .thenReturn(Mono.just(huespedBase));
+
+            StepVerifier.create(huespedService.save(huespedBase))
+                    .expectNext(huespedBase)
+                    .verifyComplete();
+        }
+
+
 
 
     }
